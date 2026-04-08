@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Menu, Flower2 } from "lucide-react";
+import { Show, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -51,9 +52,20 @@ export function MobileNav() {
             </Link>
           ))}
           <div className="mt-6">
-            <Button className="w-full" size="lg">
-              Login
-            </Button>
+            <Show when="signed-out">
+              <Button asChild className="w-full" size="lg">
+                <Link href="/sign-in">Login</Link>
+              </Button>
+            </Show>
+            <Show when="signed-in">
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: "h-9 w-9",
+                  },
+                }}
+              />
+            </Show>
           </div>
         </nav>
       </SheetContent>

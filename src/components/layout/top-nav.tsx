@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Flower2 } from "lucide-react";
+import { Show, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { MobileNav } from "@/components/layout/mobile-nav";
 
@@ -46,7 +47,20 @@ export function TopNav() {
       </nav>
 
       <div className="flex items-center gap-4">
-        <Button className="hidden md:inline-flex">Login</Button>
+        <Show when="signed-out">
+          <Button asChild className="hidden md:inline-flex">
+            <Link href="/sign-in">Login</Link>
+          </Button>
+        </Show>
+        <Show when="signed-in">
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: "h-9 w-9",
+              },
+            }}
+          />
+        </Show>
         <MobileNav />
       </div>
     </header>
