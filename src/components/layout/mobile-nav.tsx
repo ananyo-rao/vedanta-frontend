@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { Menu } from "lucide-react";
 import { Show, UserButton } from "@clerk/nextjs";
@@ -63,6 +62,7 @@ export function MobileNav() {
         <div className="px-4 py-6">
           <Show when="signed-out">
             <Button asChild className="w-full" size="lg">
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Clerk sign-in requires full page load */}
               <a href="/sign-in">Login</a>
             </Button>
           </Show>

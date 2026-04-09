@@ -57,6 +57,7 @@ export function TopNav() {
           />
         ) : (
           <Button asChild>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Clerk sign-in requires full page load */}
             <a href="/sign-in">Login</a>
           </Button>
         )}
