@@ -1,8 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuthHref } from "@/hooks/use-auth-href";
 
 export function HeroSection() {
+  const coursesHref = useAuthHref();
+
   return (
     <section
       id="home"
@@ -35,7 +40,7 @@ export function HeroSection() {
 
         <div className="flex flex-col gap-6 sm:flex-row">
           <Button size="lg" asChild>
-            <Link href="#courses">
+            <Link href={coursesHref}>
               Explore Courses
               <ArrowRight className="h-5 w-5" />
             </Link>

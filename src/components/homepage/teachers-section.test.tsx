@@ -21,14 +21,14 @@ describe("TeachersSection", () => {
   it("has correct section id for anchor navigation", () => {
     const { container } = render(<TeachersSection />);
 
-    const section = container.querySelector("#swami-satchitananda");
+    const section = container.querySelector("#teachers");
     expect(section).toBeInTheDocument();
   });
 
   it("has scroll-mt-20 class for sticky navbar offset", () => {
     const { container } = render(<TeachersSection />);
 
-    const section = container.querySelector("#swami-satchitananda");
+    const section = container.querySelector("#teachers");
     expect(section?.className).toContain("scroll-mt-20");
   });
 

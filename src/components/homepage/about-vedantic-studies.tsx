@@ -1,5 +1,8 @@
+"use client";
+
 import { Brain, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { useAuthHref } from "@/hooks/use-auth-href";
 
 const courses = [
   {
@@ -19,6 +22,8 @@ const courses = [
 ];
 
 export function AboutVedanticStudies() {
+  const coursesHref = useAuthHref();
+
   return (
     <section id="about-courses" className="scroll-mt-20 bg-surface px-6 py-24 lg:px-20">
       <div className="mx-auto max-w-7xl">
@@ -51,7 +56,7 @@ export function AboutVedanticStudies() {
                 on practical application in daily life.
               </p>
               <Link
-                href="#"
+                href={coursesHref}
                 className="inline-block rounded-md bg-primary px-8 py-3 text-sm font-bold text-on-primary transition-colors duration-[var(--duration-base)] ease-[var(--ease-intentional)] hover:bg-primary-container"
               >
                 View Course Details
@@ -80,7 +85,7 @@ export function AboutVedanticStudies() {
                 </p>
               </div>
               <Link
-                href="#"
+                href={coursesHref}
                 className="flex items-center gap-2 font-bold text-primary transition-all duration-[var(--duration-base)] ease-[var(--ease-intentional)] group-hover:gap-4"
               >
                 Enroll Now{" "}
@@ -100,7 +105,7 @@ export function AboutVedanticStudies() {
                 to inner silence.
               </p>
               <Link
-                href="#"
+                href={coursesHref}
                 className="inline-block rounded-md bg-secondary px-6 py-2 text-sm font-bold text-on-secondary transition-opacity hover:opacity-90"
               >
                 Browse All Courses

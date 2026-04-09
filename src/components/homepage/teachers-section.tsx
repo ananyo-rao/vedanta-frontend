@@ -3,7 +3,7 @@ import { TeacherCard } from "@/components/homepage/teacher-card";
 export function TeachersSection() {
   return (
     <section
-      id="swami-satchitananda"
+      id="teachers"
       className="scroll-mt-20 relative bg-surface-container-low px-6 py-24 lg:px-20"
     >
       <div className="mx-auto max-w-7xl">

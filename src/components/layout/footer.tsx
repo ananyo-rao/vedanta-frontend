@@ -1,24 +1,21 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { Send } from "lucide-react";
-
-const quickLinks = [
-  { href: "#", label: "Online Library" },
-  { href: "#", label: "Weekly Satsanga" },
-  { href: "#", label: "Course Enrollment" },
-  { href: "#", label: "Student Login" },
-];
-
-const bottomLinks = [
-  { href: "#", label: "Privacy Policy" },
-  { href: "#", label: "Terms of Service" },
-  { href: "#", label: "Contact Us" },
-];
+import { useAuthHref } from "@/hooks/use-auth-href";
 
 export function Footer() {
+  const appHref = useAuthHref();
+
+  const quickLinks = [
+    { href: appHref, label: "Online Library" },
+    { href: appHref, label: "Course Enrollment" },
+    { href: appHref, label: "Student Login" },
+  ];
+
   return (
     <footer className="bg-[#1e1b13] px-6 py-20 text-[#f8f0e1] lg:px-20">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 md:grid-cols-4">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 md:grid-cols-3">
         {/* Logo + Description (spans 2 cols) */}
         <div className="md:col-span-2">
           <div className="mb-6 flex items-center gap-3">
@@ -57,46 +54,11 @@ export function Footer() {
           </ul>
         </div>
 
-        {/* Newsletter */}
-        <div>
-          <h5 className="mb-8 text-sm font-bold uppercase tracking-[0.2em] text-[#ffb693]">
-            Newsletter
-          </h5>
-          <p className="mb-6 text-xs text-[#dbc2b0]">
-            Receive wisdom bites and course updates directly in your inbox.
-          </p>
-          <div className="flex">
-            <input
-              type="email"
-              placeholder="Email address"
-              aria-label="Email address for newsletter"
-              className="w-full rounded-l-md bg-[#2a271f] px-4 py-2 text-sm text-[#f8f0e1] placeholder-[#887364] focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-            <button
-              type="button"
-              className="rounded-r-md bg-primary px-4 py-2 text-on-primary transition-opacity hover:opacity-90"
-              aria-label="Subscribe to newsletter"
-            >
-              <Send className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Bottom bar */}
-      <div className="mx-auto mt-16 flex max-w-7xl flex-col items-center justify-between gap-4 border-t border-white/5 pt-8 text-[10px] uppercase tracking-widest text-[#6a5e33] md:flex-row">
+      <div className="mx-auto mt-16 flex max-w-7xl items-center justify-center border-t border-white/5 pt-8 text-[10px] uppercase tracking-widest text-[#6a5e33]">
         <p>&copy; {new Date().getFullYear()} Vedanta Academy. All rights reserved.</p>
-        <div className="flex gap-8">
-          {bottomLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="transition-colors duration-[var(--duration-base)] ease-[var(--ease-intentional)] hover:text-primary"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
       </div>
     </footer>
   );

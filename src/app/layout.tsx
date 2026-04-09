@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Serif, Plus_Jakarta_Sans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const notoSerif = Noto_Serif({
@@ -36,6 +37,7 @@ export default function RootLayout({
       >
         <body className="min-h-full flex flex-col bg-surface text-on-surface font-sans">
           {children}
+          <Toaster position="bottom-center" />
         </body>
       </html>
     </ClerkProvider>
