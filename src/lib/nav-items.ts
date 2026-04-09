@@ -1,4 +1,5 @@
-import { BookOpen, MessageCircle, User, type LucideIcon } from "lucide-react";
+import { BookOpen, MessageCircle, User, Hammer, type LucideIcon } from "lucide-react";
+import type { Role } from "@/lib/clerk";
 
 export interface NavItem {
   icon: LucideIcon;
@@ -6,12 +7,14 @@ export interface NavItem {
   href: string;
   badge?: string;
   category: string;
+  requiredRole?: Role;
 }
 
 export interface BottomTabItem {
   icon: LucideIcon;
   label: string;
   href: string;
+  requiredRole?: Role;
 }
 
 export const sidebarNavItems: NavItem[] = [
@@ -28,11 +31,20 @@ export const sidebarNavItems: NavItem[] = [
     category: "LEARN",
     badge: "Soon",
   },
+  {
+    icon: Hammer,
+    label: "Course Builder",
+    href: "/app/admin/course-builder",
+    category: "ADMIN",
+    badge: "Soon",
+    requiredRole: "admin",
+  },
 ];
 
 export const bottomTabItems: BottomTabItem[] = [
   { icon: BookOpen, label: "Courses", href: "/app/dashboard" },
   { icon: MessageCircle, label: "Mentorship", href: "/app/mentorship" },
+  { icon: Hammer, label: "Builder", href: "/app/admin/course-builder", requiredRole: "admin" },
   { icon: User, label: "Profile", href: "/app/profile" },
 ];
 

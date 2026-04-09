@@ -10,7 +10,7 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
-  const { userId } = await auth();
+  const { userId, sessionClaims } = await auth();
   const { pathname } = request.nextUrl;
 
   // Redirect authenticated users from homepage to app
@@ -21,6 +21,15 @@ export default clerkMiddleware(async (auth, request) => {
   // Redirect old /dashboard to new /app/dashboard
   if (pathname === "/dashboard" && userId) {
     return NextResponse.redirect(new URL("/app/dashboard", request.url));
+  }
+
+  // Redirect non-admins from admin routes to dashboard
+  if (pathname.startsWith("/app/admin") && userId) {
+    const metadata = sessionClaims?.metadata as Record<string, unknown> | undefined;
+    const role = metadata?.role;
+    if (role !== "admin") {
+      return NextResponse.redirect(new URL("/app/dashboard", request.url));
+    }
   }
 
   if (!isPublicRoute(request)) {

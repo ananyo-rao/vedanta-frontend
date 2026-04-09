@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { User, Settings, LogOut, ChevronRight, Shield } from "lucide-react";
+import { User, Users, Settings, LogOut, ChevronRight, Shield } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import type { Role } from "@/lib/clerk";
@@ -99,6 +99,23 @@ export function ProfileContent({
           </div>
         )}
       </div>
+
+      {/* Admin: User Management */}
+      {userRole === "admin" && (
+        <>
+          <Separator />
+          <div className="py-4">
+            <button
+              onClick={() => router.push("/app/admin/users")}
+              className="flex w-full items-center gap-3 rounded-lg px-4 py-3.5 text-left text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high"
+            >
+              <Users className="h-5 w-5 text-on-surface-variant" />
+              <span className="flex-1">User Management</span>
+              <ChevronRight className="h-4 w-4 text-on-surface-variant" />
+            </button>
+          </div>
+        </>
+      )}
 
       <Separator />
 

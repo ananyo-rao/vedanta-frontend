@@ -7,28 +7,41 @@ import {
 
 describe("nav-items", () => {
   describe("sidebarNavItems", () => {
-    it("has Courses and Mentorship items", () => {
-      expect(sidebarNavItems).toHaveLength(2);
-      expect(sidebarNavItems[0].label).toBe("Courses");
-      expect(sidebarNavItems[1].label).toBe("Mentorship");
+    it("has Courses, Mentorship, and Course Builder items", () => {
+      expect(sidebarNavItems).toHaveLength(3);
+      expect(sidebarNavItems.map((i) => i.label)).toEqual([
+        "Courses",
+        "Mentorship",
+        "Course Builder",
+      ]);
     });
 
-    it("all items have LEARN category", () => {
-      sidebarNavItems.forEach((item) => {
-        expect(item.category).toBe("LEARN");
+    it("Course Builder requires admin role", () => {
+      const builder = sidebarNavItems.find(
+        (i) => i.label === "Course Builder"
+      );
+      expect(builder?.requiredRole).toBe("admin");
+      expect(builder?.category).toBe("ADMIN");
+    });
+
+    it("LEARN items have no requiredRole", () => {
+      const learnItems = sidebarNavItems.filter(
+        (i) => i.category === "LEARN"
+      );
+      learnItems.forEach((item) => {
+        expect(item.requiredRole).toBeUndefined();
       });
     });
 
-    it("Mentorship has Soon badge", () => {
+    it("Mentorship and Course Builder have Soon badge", () => {
       const mentorship = sidebarNavItems.find(
         (i) => i.label === "Mentorship"
       );
+      const builder = sidebarNavItems.find(
+        (i) => i.label === "Course Builder"
+      );
       expect(mentorship?.badge).toBe("Soon");
-    });
-
-    it("Courses has no badge", () => {
-      const courses = sidebarNavItems.find((i) => i.label === "Courses");
-      expect(courses?.badge).toBeUndefined();
+      expect(builder?.badge).toBe("Soon");
     });
 
     it("all items have /app/ prefix in href", () => {
@@ -39,13 +52,19 @@ describe("nav-items", () => {
   });
 
   describe("bottomTabItems", () => {
-    it("has 3 tabs: Courses, Mentorship, Profile", () => {
-      expect(bottomTabItems).toHaveLength(3);
+    it("has 4 tabs: Courses, Mentorship, Builder, Profile", () => {
+      expect(bottomTabItems).toHaveLength(4);
       expect(bottomTabItems.map((t) => t.label)).toEqual([
         "Courses",
         "Mentorship",
+        "Builder",
         "Profile",
       ]);
+    });
+
+    it("Builder tab requires admin role", () => {
+      const builder = bottomTabItems.find((t) => t.label === "Builder");
+      expect(builder?.requiredRole).toBe("admin");
     });
 
     it("all items have /app/ prefix in href", () => {

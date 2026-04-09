@@ -16,17 +16,19 @@ import { SidebarItem } from "@/components/layout/sidebar-item";
 import { CategoryGroup } from "@/components/layout/category-group";
 import { useSidebar } from "@/hooks/use-sidebar";
 import { sidebarNavItems } from "@/lib/nav-items";
+import type { Role } from "@/lib/clerk";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   userName?: string;
-  userRole?: string;
+  userRole?: Role;
   userEmail?: string;
   userImageUrl?: string;
 }
 
 export function Sidebar({
   userName,
+  userRole,
   userEmail,
   userImageUrl,
 }: SidebarProps) {
@@ -47,14 +49,17 @@ export function Sidebar({
     router.push("/");
   };
 
-  // Group nav items by category
-  const categories = sidebarNavItems.reduce(
+  // Filter nav items by role, then group by category
+  const filteredItems = sidebarNavItems.filter(
+    (item) => !item.requiredRole || item.requiredRole === userRole
+  );
+  const categories = filteredItems.reduce(
     (acc, item) => {
       if (!acc[item.category]) acc[item.category] = [];
       acc[item.category].push(item);
       return acc;
     },
-    {} as Record<string, typeof sidebarNavItems>
+    {} as Record<string, typeof filteredItems>
   );
 
   return (

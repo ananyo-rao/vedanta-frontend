@@ -2,14 +2,14 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { BottomTabBar } from "@/components/layout/bottom-tab-bar";
-
+import { getUserRole } from "@/lib/clerk";
 
 export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { userId } = await auth();
+  const { userId, sessionClaims } = await auth();
 
   if (!userId) {
     redirect("/sign-in");
@@ -19,6 +19,7 @@ export default async function AppLayout({
   const userName = user?.firstName || "";
   const userEmail = user?.emailAddresses?.[0]?.emailAddress || "";
   const userImageUrl = user?.imageUrl || "";
+  const userRole = getUserRole(sessionClaims);
 
   return (
     <div className="flex h-screen bg-surface">
@@ -26,6 +27,7 @@ export default async function AppLayout({
       <div className="hidden sm:block">
         <Sidebar
           userName={userName}
+          userRole={userRole}
           userEmail={userEmail}
           userImageUrl={userImageUrl}
         />
@@ -40,7 +42,7 @@ export default async function AppLayout({
       </main>
 
       {/* Mobile bottom tab bar (hidden on sm+) */}
-      <BottomTabBar />
+      <BottomTabBar userRole={userRole} />
     </div>
   );
 }
