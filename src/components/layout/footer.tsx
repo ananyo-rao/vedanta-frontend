@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Flower2, Send } from "lucide-react";
+import Image from "next/image";
+import { Send } from "lucide-react";
 
 const quickLinks = [
   { href: "#", label: "Online Library" },
@@ -21,9 +22,9 @@ export function Footer() {
         {/* Logo + Description (spans 2 cols) */}
         <div className="md:col-span-2">
           <div className="mb-6 flex items-center gap-3">
-            <Flower2 className="h-7 w-7 text-[#ff9762]" />
+            <Image src="/images/arsha-vidya-icon.png" alt="Vedanta Academy" width={28} height={28} className="rounded" />
             <h2 className="font-serif text-2xl font-black tracking-tight">
-              Vedanta Vidyalaya
+              Vedanta Academy
             </h2>
           </div>
           <p className="mb-8 max-w-sm leading-relaxed text-[#dbc2b0]">
@@ -84,7 +85,7 @@ export function Footer() {
 
       {/* Bottom bar */}
       <div className="mx-auto mt-16 flex max-w-7xl flex-col items-center justify-between gap-4 border-t border-white/5 pt-8 text-[10px] uppercase tracking-widest text-[#6a5e33] md:flex-row">
-        <p>&copy; {new Date().getFullYear()} Vedanta Vidyalaya Academy. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Vedanta Academy. All rights reserved.</p>
         <div className="flex gap-8">
           {bottomLinks.map((link) => (
             <Link

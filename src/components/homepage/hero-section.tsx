@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 export function HeroSection() {
   return (
     <section
-      id="hero"
-      className="watercolor-bg relative flex min-h-[750px] items-center overflow-hidden px-6 py-20 lg:px-20"
+      id="home"
+      className="scroll-mt-20 watercolor-bg relative flex min-h-[750px] items-center overflow-hidden px-6 py-20 lg:px-20"
     >
       {/* Background Om symbol */}
       <div

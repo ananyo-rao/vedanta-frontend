@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/hooks/use-sidebar";
+import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
@@ -15,29 +17,43 @@ interface SidebarItemProps {
   icon: LucideIcon;
   label: string;
   href: string;
-  active?: boolean;
+  badge?: string;
 }
 
 export function SidebarItem({
   icon: Icon,
   label,
   href,
-  active = false,
+  badge,
 }: SidebarItemProps) {
-  const collapsed = useSidebar((s) => s.collapsed);
+  const { collapsed } = useSidebar();
+  const pathname = usePathname();
+  const active = pathname.startsWith(href);
 
   const link = (
     <Link
       href={href}
       className={cn(
-        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-[var(--duration-base)] ease-[var(--ease-intentional)]",
+        "flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-[var(--duration-base)] ease-[var(--ease-intentional)]",
         active
-          ? "bg-surface-container-low text-primary"
+          ? "bg-primary/8 text-primary"
           : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
       )}
     >
       <Icon className="h-5 w-5 flex-shrink-0" />
-      {!collapsed && <span>{label}</span>}
+      {!collapsed && (
+        <>
+          <span className="flex-1">{label}</span>
+          {badge && (
+            <Badge
+              variant="outline"
+              className="ml-auto px-1.5 py-0 text-[10px]"
+            >
+              {badge}
+            </Badge>
+          )}
+        </>
+      )}
     </Link>
   );
 

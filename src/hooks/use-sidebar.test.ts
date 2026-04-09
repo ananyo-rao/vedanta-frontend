@@ -1,29 +1,28 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { useSidebar } from "./use-sidebar";
+import { useSidebarStore } from "./use-sidebar";
 
-describe("useSidebar", () => {
+describe("useSidebarStore", () => {
   beforeEach(() => {
-    // Reset store state between tests
-    useSidebar.setState({ collapsed: false });
+    useSidebarStore.setState({ collapsed: false });
   });
 
   it("starts with collapsed = false", () => {
-    expect(useSidebar.getState().collapsed).toBe(false);
+    expect(useSidebarStore.getState().collapsed).toBe(false);
   });
 
   it("toggles collapsed state", () => {
-    useSidebar.getState().toggle();
-    expect(useSidebar.getState().collapsed).toBe(true);
+    useSidebarStore.getState().toggle();
+    expect(useSidebarStore.getState().collapsed).toBe(true);
 
-    useSidebar.getState().toggle();
-    expect(useSidebar.getState().collapsed).toBe(false);
+    useSidebarStore.getState().toggle();
+    expect(useSidebarStore.getState().collapsed).toBe(false);
   });
 
   it("sets collapsed state directly", () => {
-    useSidebar.getState().setCollapsed(true);
-    expect(useSidebar.getState().collapsed).toBe(true);
+    useSidebarStore.getState().setCollapsed(true);
+    expect(useSidebarStore.getState().collapsed).toBe(true);
 
-    useSidebar.getState().setCollapsed(false);
-    expect(useSidebar.getState().collapsed).toBe(false);
+    useSidebarStore.getState().setCollapsed(false);
+    expect(useSidebarStore.getState().collapsed).toBe(false);
   });
 });

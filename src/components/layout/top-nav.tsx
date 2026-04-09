@@ -1,54 +1,62 @@
+"use client";
+
 import Link from "next/link";
-import { Flower2 } from "lucide-react";
+import Image from "next/image";
 import { Show, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { MobileNav } from "@/components/layout/mobile-nav";
-
-const navLinks = [
-  { href: "#hero", label: "Home", active: true },
-  { href: "#courses", label: "Courses", active: false },
-  { href: "#about", label: "About", active: false },
-  { href: "#teachers", label: "Teachers", active: false },
-];
+import { useActiveSection } from "@/hooks/use-active-section";
+import { homepageNavLinks } from "@/lib/nav-items";
+import { cn } from "@/lib/utils";
 
 export function TopNav() {
+  const activeSection = useActiveSection();
+
   return (
     <header className="sticky top-0 z-50 flex w-full items-center justify-between bg-surface/95 px-6 py-4 backdrop-blur-sm">
-      <div className="flex items-center gap-3">
-        <Flower2 className="h-7 w-7 text-primary" />
+      <div className="flex items-center gap-2.5">
+        <Image
+          src="/images/arsha-vidya-icon.png"
+          alt="Vedanta Academy"
+          width={28}
+          height={28}
+          className="rounded"
+        />
         <Link
           href="/"
           className="font-serif text-xl font-black tracking-tight text-primary"
         >
-          Vedanta Vidyalaya
+          Vedanta Academy
         </Link>
       </div>
 
-      <nav className="hidden items-center gap-8 md:flex">
-        {navLinks.map((link) =>
-          link.active ? (
-            <Link
+      <nav className="hidden items-center gap-1 lg:flex">
+        {homepageNavLinks.map((link) => {
+          const sectionId = link.href.replace("#", "");
+          const isActive = activeSection === sectionId;
+
+          return (
+            <a
               key={link.href}
               href={link.href}
-              className="border-b-2 border-primary py-1 font-medium text-primary"
+              aria-current={isActive ? "location" : undefined}
+              className={cn(
+                "rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-[var(--duration-base)] ease-[var(--ease-intentional)]",
+                isActive
+                  ? "text-primary"
+                  : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+              )}
             >
-              {link.label}
-            </Link>
-          ) : (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-lg px-3 py-1 text-secondary transition-colors duration-[var(--duration-base)] ease-[var(--ease-intentional)] hover:bg-surface-container-high"
-            >
-              {link.label}
-            </Link>
-          )
-        )}
+              <span className="hidden xl:inline">{link.label}</span>
+              <span className="xl:hidden">{link.shortLabel}</span>
+            </a>
+          );
+        })}
       </nav>
 
       <div className="flex items-center gap-4">
         <Show when="signed-out">
-          <Button asChild className="hidden md:inline-flex">
+          <Button asChild className="hidden sm:inline-flex">
             <Link href="/sign-in">Login</Link>
           </Button>
         </Show>

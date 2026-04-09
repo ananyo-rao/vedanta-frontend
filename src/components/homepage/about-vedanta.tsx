@@ -1,8 +1,8 @@
 export function AboutVedanta() {
   return (
     <section
-      id="about"
-      className="bg-surface-container-low px-6 py-24 lg:px-20"
+      id="about-vedanta"
+      className="scroll-mt-20 bg-surface-container-low px-6 py-24 lg:px-20"
     >
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 items-center gap-16 md:grid-cols-2">

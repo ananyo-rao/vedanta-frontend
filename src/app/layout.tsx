@@ -18,7 +18,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Vedanta Vidyalaya",
+  title: "Vedanta Academy",
   description:
     "A traditional sanctuary for study, reflection, and realization. Live guided courses in Advaita Vedanta, Bhagavad Gita, and meditation.",
 };

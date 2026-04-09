@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Menu, Flower2 } from "lucide-react";
+import Image from "next/image";
+import { Menu } from "lucide-react";
 import { Show, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
@@ -11,63 +14,68 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
-const navLinks = [
-  { href: "#hero", label: "Home" },
-  { href: "#courses", label: "Courses" },
-  { href: "#about", label: "About" },
-  { href: "#teachers", label: "Teachers" },
-];
+import { homepageNavLinks } from "@/lib/nav-items";
 
 export function MobileNav() {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden text-primary"
+          className="text-primary lg:hidden"
           aria-label="Open navigation menu"
         >
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-72">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-3">
-            <Flower2 className="h-7 w-7 text-primary" />
-            <span className="text-xl font-black text-primary tracking-tight font-serif">
-              Vedanta Vidyalaya
+      <SheetContent side="left" className="w-80 p-0">
+        <SheetHeader className="px-6 py-5">
+          <SheetTitle className="flex items-center gap-2.5">
+            <Image
+              src="/images/arsha-vidya-icon.png"
+              alt="Vedanta Academy"
+              width={28}
+              height={28}
+              className="rounded"
+            />
+            <span className="font-serif text-xl font-black tracking-tight text-primary">
+              Vedanta Academy
             </span>
           </SheetTitle>
         </SheetHeader>
-        <nav className="mt-8 flex flex-col gap-2">
-          {navLinks.map((link) => (
-            <Link
+        <Separator />
+        <nav className="flex flex-col gap-1 px-4 py-4">
+          {homepageNavLinks.map((link) => (
+            <a
               key={link.href}
               href={link.href}
-              className="rounded-lg px-4 py-3 text-base font-medium text-on-surface-variant transition-colors duration-[var(--duration-base)] ease-[var(--ease-intentional)] hover:bg-surface-container-high hover:text-on-surface"
+              onClick={() => setOpen(false)}
+              className="flex min-h-[48px] items-center rounded-lg px-4 py-3 text-base font-medium text-on-surface-variant transition-colors duration-[var(--duration-base)] ease-[var(--ease-intentional)] hover:bg-surface-container-high hover:text-on-surface"
             >
               {link.label}
-            </Link>
+            </a>
           ))}
-          <div className="mt-6">
-            <Show when="signed-out">
-              <Button asChild className="w-full" size="lg">
-                <Link href="/sign-in">Login</Link>
-              </Button>
-            </Show>
-            <Show when="signed-in">
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: "h-9 w-9",
-                  },
-                }}
-              />
-            </Show>
-          </div>
         </nav>
+        <Separator className="mx-4" />
+        <div className="px-4 py-6">
+          <Show when="signed-out">
+            <Button asChild className="w-full" size="lg">
+              <Link href="/sign-in">Login</Link>
+            </Button>
+          </Show>
+          <Show when="signed-in">
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: "h-9 w-9",
+                },
+              }}
+            />
+          </Show>
+        </div>
       </SheetContent>
     </Sheet>
   );

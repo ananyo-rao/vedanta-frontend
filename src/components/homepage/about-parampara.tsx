@@ -1,6 +1,6 @@
 export function AboutParampara() {
   return (
-    <section className="bg-surface px-6 py-24 lg:px-20">
+    <section id="parampara" className="scroll-mt-20 bg-surface px-6 py-24 lg:px-20">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 items-center gap-16 md:grid-cols-2">
           {/* Visual element on left */}
@@ -51,7 +51,7 @@ export function AboutParampara() {
             <p className="text-base leading-[1.6] text-on-surface-variant">
               This lineage stretches back thousands of years, from the great Adi
               Shankaracharya through generations of dedicated acharyas. At
-              Vedanta Vidyalaya, we honour this tradition by maintaining the
+              Vedanta Academy, we honour this tradition by maintaining the
               personal, dialogue-based method of teaching that allows each
               student to progress at their own pace of understanding.
             </p>

@@ -20,7 +20,7 @@ const courses = [
 
 export function AboutVedanticStudies() {
   return (
-    <section id="courses" className="bg-surface px-6 py-24 lg:px-20">
+    <section id="about-courses" className="scroll-mt-20 bg-surface px-6 py-24 lg:px-20">
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 flex flex-col items-end justify-between gap-4 md:flex-row">
           <div className="max-w-xl">

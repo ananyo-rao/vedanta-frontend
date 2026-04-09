@@ -1,6 +1,6 @@
 export function AboutSwami() {
   return (
-    <section className="bg-surface-container-low px-6 py-24 lg:px-20">
+    <section id="swami-dayananda" className="scroll-mt-20 bg-surface-container-low px-6 py-24 lg:px-20">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 items-center gap-16 md:grid-cols-2">
           <div className="asymmetric-gutter">
@@ -17,7 +17,7 @@ export function AboutSwami() {
               scriptural scholarship with a warm, accessible teaching style.
             </p>
             <p className="mb-6 text-base leading-[1.6] text-on-surface-variant">
-              Under his guidance, Vedanta Vidyalaya was established to create a
+              Under his guidance, Vedanta Academy was established to create a
               space where seekers from all walks of life could engage with the
               timeless wisdom of the Vedantic texts in a structured, supportive
               environment.
