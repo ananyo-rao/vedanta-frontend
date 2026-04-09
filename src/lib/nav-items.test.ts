@@ -56,30 +56,18 @@ describe("nav-items", () => {
   });
 
   describe("homepageNavLinks", () => {
-    it("has 6 anchor links in correct order", () => {
-      expect(homepageNavLinks).toHaveLength(6);
-      expect(homepageNavLinks.map((l) => l.href)).toEqual([
-        "#home",
-        "#about-vedanta",
-        "#about-courses",
-        "#parampara",
-        "#swami-dayananda",
-        "#swami-satchitananda",
+    it("has 3 navbar links: Home, Courses, About Us", () => {
+      expect(homepageNavLinks).toHaveLength(3);
+      expect(homepageNavLinks.map((l) => l.label)).toEqual([
+        "Home",
+        "Courses",
+        "About Us",
       ]);
     });
 
-    it("all links have both label and shortLabel", () => {
+    it("all links have anchor hrefs", () => {
       homepageNavLinks.forEach((link) => {
-        expect(link.label).toBeTruthy();
-        expect(link.shortLabel).toBeTruthy();
-      });
-    });
-
-    it("shortLabels are shorter or equal to labels", () => {
-      homepageNavLinks.forEach((link) => {
-        expect(link.shortLabel.length).toBeLessThanOrEqual(
-          link.label.length
-        );
+        expect(link.href).toMatch(/^#/);
       });
     });
   });

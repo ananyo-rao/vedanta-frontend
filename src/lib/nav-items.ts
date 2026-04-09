@@ -37,22 +37,7 @@ export const bottomTabItems: BottomTabItem[] = [
 ];
 
 export const homepageNavLinks = [
-  { href: "#home", label: "Home", shortLabel: "Home" },
-  { href: "#about-vedanta", label: "About Vedanta", shortLabel: "Vedanta" },
-  { href: "#about-courses", label: "About Courses", shortLabel: "Courses" },
-  {
-    href: "#parampara",
-    label: "Arsha Vidya Parampara",
-    shortLabel: "Parampara",
-  },
-  {
-    href: "#swami-dayananda",
-    label: "Swami Dayananda Saraswati",
-    shortLabel: "Dayanandaji",
-  },
-  {
-    href: "#swami-satchitananda",
-    label: "Swami Satchitananda",
-    shortLabel: "Satchitanandaji",
-  },
+  { href: "#home", label: "Home" },
+  { href: "#about-courses", label: "Courses" },
+  { href: "#about-vedanta", label: "About Us" },
 ];

@@ -30,7 +30,7 @@ export function TopNav() {
         </Link>
       </div>
 
-      <nav className="hidden items-center gap-1 lg:flex">
+      <nav className="hidden items-center gap-1 md:flex">
         {homepageNavLinks.map((link) => {
           const sectionId = link.href.replace("#", "");
           const isActive = activeSection === sectionId;
@@ -47,8 +47,7 @@ export function TopNav() {
                   : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
               )}
             >
-              <span className="hidden xl:inline">{link.label}</span>
-              <span className="xl:hidden">{link.shortLabel}</span>
+              {link.label}
             </a>
           );
         })}
@@ -56,7 +55,7 @@ export function TopNav() {
 
       <div className="flex items-center gap-4">
         <Show when="signed-out">
-          <Button asChild className="hidden sm:inline-flex">
+          <Button asChild>
             <Link href="/sign-in">Login</Link>
           </Button>
         </Show>
