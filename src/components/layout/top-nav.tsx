@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Show, UserButton } from "@clerk/nextjs";
+import { useAuth, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { useActiveSection } from "@/hooks/use-active-section";
@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 
 export function TopNav() {
   const activeSection = useActiveSection();
+  const { isSignedIn, isLoaded } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 flex w-full items-center justify-between bg-surface/95 px-6 py-4 backdrop-blur-sm">
@@ -54,12 +55,7 @@ export function TopNav() {
       </nav>
 
       <div className="flex items-center gap-4">
-        <Show when="signed-out">
-          <Button asChild>
-            <Link href="/sign-in">Login</Link>
-          </Button>
-        </Show>
-        <Show when="signed-in">
+        {isLoaded && isSignedIn ? (
           <UserButton
             appearance={{
               elements: {
@@ -67,7 +63,11 @@ export function TopNav() {
               },
             }}
           />
-        </Show>
+        ) : (
+          <Button asChild>
+            <Link href="/sign-in">Login</Link>
+          </Button>
+        )}
         <MobileNav />
       </div>
     </header>

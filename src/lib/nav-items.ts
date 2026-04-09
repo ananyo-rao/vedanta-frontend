@@ -39,5 +39,5 @@ export const bottomTabItems: BottomTabItem[] = [
 export const homepageNavLinks = [
   { href: "#home", label: "Home" },
   { href: "#about-courses", label: "Courses" },
-  { href: "#about-vedanta", label: "About Us" },
+  { href: "#parampara", label: "About Us" },
 ];

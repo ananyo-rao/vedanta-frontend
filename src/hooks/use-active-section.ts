@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 
 // Only track sections that appear in the top navbar
-const SECTION_IDS = ["home", "about-courses", "about-vedanta"];
+const SECTION_IDS = ["home", "about-courses", "parampara"];
 
 export function useActiveSection() {
   const [activeSection, setActiveSection] = useState("home");
