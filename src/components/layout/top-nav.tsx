@@ -57,7 +57,7 @@ export function TopNav() {
           />
         ) : (
           <Button asChild>
-            <Link href="/sign-in">Login</Link>
+            <a href="/sign-in">Login</a>
           </Button>
         )}
         <MobileNav />

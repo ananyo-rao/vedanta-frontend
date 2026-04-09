@@ -68,6 +68,11 @@ jobs:
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
 
+      - name: Fetch Clerk publishable key from Secret Manager
+        id: clerk-key
+        run: |
+          echo "key=$(gcloud secrets versions access latest --secret=CLERK_PUBLISHABLE_KEY_DEV --project=${{ secrets.GCP_PROJECT_ID }})" >> "$GITHUB_OUTPUT"
+
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
@@ -76,6 +81,9 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:${{ github.sha }}
             ${{ env.IMAGE }}:dev-latest
+          build-args: |
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ steps.clerk-key.outputs.key }}
+            NEXT_PUBLIC_API_URL=${{ secrets.DEV_API_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

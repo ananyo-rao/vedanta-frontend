@@ -31,7 +31,9 @@ export default async function DashboardPage() {
   let courses: Course[] = [];
   let error: string | null = null;
 
-  if (token) {
+  if (!token) {
+    error = "Unable to authenticate. Please try signing out and back in.";
+  } else {
     try {
       const result = await fetchCourses(token);
       courses = result.data ?? [];
@@ -54,7 +56,7 @@ export default async function DashboardPage() {
       {error ? (
         <div className="rounded-xl bg-error-container p-6 text-center">
           <p className="text-sm font-medium text-on-error-container">
-            Unable to load courses. Please try again later.
+            {error}
           </p>
         </div>
       ) : courses.length > 0 ? (

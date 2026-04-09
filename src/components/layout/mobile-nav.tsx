@@ -63,7 +63,7 @@ export function MobileNav() {
         <div className="px-4 py-6">
           <Show when="signed-out">
             <Button asChild className="w-full" size="lg">
-              <Link href="/sign-in">Login</Link>
+              <a href="/sign-in">Login</a>
             </Button>
           </Show>
           <Show when="signed-in">

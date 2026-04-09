@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { PanelLeftClose, PanelLeft, Settings, LogOut } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
@@ -68,20 +67,11 @@ export function Sidebar({
     >
       {/* Branding + collapse toggle */}
       <div className="flex items-center justify-between px-3 py-4">
-        <div className="flex items-center gap-2.5">
-          <Image
-            src="/images/arsha-vidya-icon.png"
-            alt="Vedanta Academy"
-            width={32}
-            height={32}
-            className="flex-shrink-0 rounded"
-          />
-          {!collapsed && (
-            <span className="font-serif text-base font-bold text-primary">
-              Vedanta Academy
-            </span>
-          )}
-        </div>
+        {!collapsed && (
+          <span className="font-serif text-base font-bold text-primary">
+            Vedanta Academy
+          </span>
+        )}
         <Button
           variant="ghost"
           size="icon"
