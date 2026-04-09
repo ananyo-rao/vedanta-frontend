@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useAuth, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { MobileNav } from "@/components/layout/mobile-nav";
@@ -15,14 +14,7 @@ export function TopNav() {
 
   return (
     <header className="sticky top-0 z-50 flex w-full items-center justify-between bg-surface/95 px-6 py-4 backdrop-blur-sm">
-      <div className="flex items-center gap-2.5">
-        <Image
-          src="/images/arsha-vidya-icon.png"
-          alt="Vedanta Academy"
-          width={28}
-          height={28}
-          className="rounded"
-        />
+      <div className="flex items-center">
         <Link
           href="/"
           className="font-serif text-xl font-black tracking-tight text-primary"
@@ -42,7 +34,7 @@ export function TopNav() {
               href={link.href}
               aria-current={isActive ? "location" : undefined}
               className={cn(
-                "rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-[var(--duration-base)] ease-[var(--ease-intentional)]",
+                "rounded-lg px-4 py-2 text-base font-medium transition-colors duration-[var(--duration-base)] ease-[var(--ease-intentional)]",
                 isActive
                   ? "text-primary"
                   : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
