@@ -11,7 +11,7 @@ export const createCourseSchema = z.object({
     .max(500, "Description must be 500 characters or less"),
   intro_video_url: z.string().url("Must be a valid URL").optional().nullable(),
   intro_video_source: z
-    .enum(["gcs", "youtube", "vimeo", "external"])
+    .enum(["gcs", "youtube", "vimeo", "external", "bunny"])
     .optional()
     .nullable(),
   thumbnail_url: z.string().url("Must be a valid URL").optional().nullable(),
@@ -26,7 +26,7 @@ export type UpdateCourseInput = z.infer<typeof updateCourseSchema>;
 
 export const videoContentSchema = z.object({
   video_url: z.string().min(1, "Video URL is required"),
-  video_source: z.enum(["gcs", "youtube", "vimeo", "external"]),
+  video_source: z.enum(["gcs", "youtube", "vimeo", "external", "bunny"]),
   summary: z
     .string()
     .min(1, "Summary is required")
@@ -43,7 +43,7 @@ export const introspectionContentSchema = z.object({
 
 export const meditationContentSchema = z.object({
   video_url: z.string().min(1, "Video URL is required"),
-  video_source: z.enum(["gcs", "youtube", "vimeo", "external"]),
+  video_source: z.enum(["gcs", "youtube", "vimeo", "external", "bunny"]),
   description: z
     .string()
     .max(500, "Description must be 500 characters or less")

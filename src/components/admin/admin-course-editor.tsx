@@ -1,20 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import {
-  ChevronLeft,
-  MoreHorizontal,
-  Calendar,
-  CalendarOff,
-  EyeOff,
-} from "lucide-react";
+import { ChevronLeft, MoreHorizontal, Calendar, CalendarOff } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +29,7 @@ import { CourseIntroForm } from "@/components/admin/course-intro-form";
 import { SortablePageList } from "@/components/admin/sortable-page-list";
 import { PageTypeSelector } from "@/components/admin/page-type-selector";
 import { AdminPageEditor } from "@/components/admin/admin-page-editor";
+import { IntrospectionResponsesPanel } from "@/components/admin/introspection-responses-panel";
 import {
   useAdminCourse,
   useUpdateCourse,
@@ -54,7 +49,6 @@ interface AdminCourseEditorProps {
 }
 
 export function AdminCourseEditor({ courseId }: AdminCourseEditorProps) {
-  const router = useRouter();
   const { data: course, isLoading, error } = useAdminCourse(courseId);
   const updateCourse = useUpdateCourse(courseId);
   const publishCourse = usePublishCourse(courseId);
@@ -271,53 +265,66 @@ export function AdminCourseEditor({ courseId }: AdminCourseEditorProps) {
         </div>
       </div>
 
-      {!canPublish && course.status === "draft" && (
-        <p className="mb-4 text-xs text-on-surface-variant">
-          Complete the course intro and add at least one page to publish.
-        </p>
-      )}
-
       {/* Course Title */}
-      <h1 className="mb-6 font-serif text-2xl font-bold text-on-surface">
+      <h1 className="mb-4 font-serif text-2xl font-bold text-on-surface">
         {course.title || "Untitled Course"}
       </h1>
 
-      {/* Course Intro Form */}
-      <CourseIntroForm
-        course={course}
-        onSave={handleSaveIntro}
-        saving={updateCourse.isPending}
-      />
+      {/* Main tabs: Build | Responses */}
+      <Tabs defaultValue="build">
+        <TabsList className="mb-6">
+          <TabsTrigger value="build">Build</TabsTrigger>
+          <TabsTrigger value="responses">Responses</TabsTrigger>
+        </TabsList>
 
-      <Separator className="my-6" />
+        {/* Build tab — course intro + pages */}
+        <TabsContent value="build">
+          {!canPublish && course.status === "draft" && (
+            <p className="mb-4 text-xs text-on-surface-variant">
+              Complete the course intro and add at least one page to publish.
+            </p>
+          )}
 
-      {/* Pages Section */}
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="font-serif text-lg font-semibold text-on-surface">
-          Pages ({pages.length})
-        </h2>
-        <PageTypeSelector onSelect={(type) => setAddingPageType(type)} />
-      </div>
-
-      <SortablePageList
-        pages={pages}
-        onReorder={handleReorder}
-        onUpdatePage={handleUpdatePage}
-        onDeletePage={handleDeletePage}
-        savingPageId={savingPageId}
-      />
-
-      {/* New page editor */}
-      {addingPageType && (
-        <div className="mt-4">
-          <AdminPageEditor
-            pageType={addingPageType}
-            onSave={handleAddPage}
-            onCancel={() => setAddingPageType(null)}
-            saving={addPage.isPending}
+          <CourseIntroForm
+            course={course}
+            onSave={handleSaveIntro}
+            saving={updateCourse.isPending}
           />
-        </div>
-      )}
+
+          <Separator className="my-6" />
+
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-serif text-lg font-semibold text-on-surface">
+              Pages ({pages.length})
+            </h2>
+            <PageTypeSelector onSelect={(type) => setAddingPageType(type)} />
+          </div>
+
+          <SortablePageList
+            pages={pages}
+            onReorder={handleReorder}
+            onUpdatePage={handleUpdatePage}
+            onDeletePage={handleDeletePage}
+            savingPageId={savingPageId}
+          />
+
+          {addingPageType && (
+            <div className="mt-4">
+              <AdminPageEditor
+                pageType={addingPageType}
+                onSave={handleAddPage}
+                onCancel={() => setAddingPageType(null)}
+                saving={addPage.isPending}
+              />
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Responses tab — student introspection responses */}
+        <TabsContent value="responses">
+          <IntrospectionResponsesPanel courseId={courseId} />
+        </TabsContent>
+      </Tabs>
 
       {/* Publish confirmation dialog */}
       <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>

@@ -31,7 +31,7 @@ export interface AdminCourseListItem {
 }
 
 export type CourseStatus = "draft" | "published";
-export type VideoSource = "gcs" | "youtube" | "vimeo" | "external";
+export type VideoSource = "gcs" | "youtube" | "vimeo" | "external" | "bunny";
 export type PageType = "video" | "introspection" | "meditation";
 
 export interface CoursePage {
@@ -96,6 +96,23 @@ export interface IntrospectionResponse {
   is_draft: boolean;
   created_at: string;
   updated_at: string;
+}
+
+// AdminIntrospectionResponse includes student info for admin views (from ResponseWithUser).
+export interface AdminIntrospectionResponse extends IntrospectionResponse {
+  user_name: string;
+  user_email: string;
+  page_title: string;
+}
+
+// VideoUploadInit contains Bunny.net TUS credentials for direct browser upload.
+export interface VideoUploadInit {
+  video_id: string;
+  tus_upload_url: string;
+  signature: string;
+  expiry: number;
+  library_id: string;
+  cdn_url: string;
 }
 
 export interface CourseWithEnrollment extends Course {

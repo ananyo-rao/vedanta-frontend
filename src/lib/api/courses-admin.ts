@@ -3,7 +3,8 @@ import type {
   CourseWithPages,
   Course,
   CoursePage,
-  IntrospectionResponse,
+  AdminIntrospectionResponse,
+  VideoUploadInit,
 } from "@/types/course";
 import type {
   CreateCourseInput,
@@ -164,9 +165,21 @@ export async function reorderPages(
 export async function getIntrospectionResponses(
   token: string,
   courseId: string
-): Promise<{ data: IntrospectionResponse[] }> {
+): Promise<{ data: AdminIntrospectionResponse[]; total: number }> {
   return fetchWithAuth(
     `${API_URL}/api/admin/courses/${courseId}/responses`,
     token
   );
+}
+
+// --- Video Upload ---
+
+export async function initVideoUpload(
+  token: string,
+  title: string
+): Promise<{ data: VideoUploadInit }> {
+  return fetchWithAuth(`${API_URL}/api/admin/upload/video`, token, {
+    method: "POST",
+    body: JSON.stringify({ title }),
+  });
 }

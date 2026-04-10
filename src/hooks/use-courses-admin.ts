@@ -231,3 +231,15 @@ export function useIntrospectionResponses(courseId: string) {
     retry: 1,
   });
 }
+
+export function useInitVideoUpload() {
+  const { fetchToken } = useAuthToken();
+
+  return useMutation({
+    mutationFn: async (title: string) => {
+      const token = await fetchToken();
+      const result = await api.initVideoUpload(token, title);
+      return result.data;
+    },
+  });
+}

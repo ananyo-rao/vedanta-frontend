@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useCallback, useState } from "react";
+import type Hls from "hls.js";
 import { useUpdateVideoProgress } from "@/hooks/use-courses";
 
 interface VideoPlayerProps {
@@ -22,6 +23,10 @@ function getYouTubeId(url: string): string | null {
 function getVimeoId(url: string): string | null {
   const match = url.match(/vimeo\.com\/(\d+)/);
   return match ? match[1] : null;
+}
+
+function isHLSUrl(url: string): boolean {
+  return url.includes(".m3u8");
 }
 
 export function VideoPlayer({
@@ -114,9 +119,45 @@ function NativePlayer({
   onProgressUpdate?: (percent: number) => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const hlsRef = useRef<Hls | null>(null);
   const updateProgress = useUpdateVideoProgress(courseId, pageId);
   const lastUpdateRef = useRef(0);
   const [isReady, setIsReady] = useState(false);
+
+  // Attach HLS.js for .m3u8 streams; fall back to native src for regular video.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let cleanup: (() => void) | undefined;
+
+    if (isHLSUrl(url)) {
+      // Dynamic import avoids SSR issues and keeps the initial bundle smaller.
+      import("hls.js").then(({ default: HlsClass }) => {
+        if (!videoRef.current) return;
+
+        if (HlsClass.isSupported()) {
+          const hls = new HlsClass({ startLevel: -1 }); // -1 = auto quality
+          hlsRef.current = hls;
+          hls.loadSource(url);
+          hls.attachMedia(videoRef.current);
+        } else if (videoRef.current.canPlayType("application/vnd.apple.mpegurl")) {
+          // Safari natively supports HLS — fall back to setting src directly
+          videoRef.current.src = url;
+        }
+      });
+
+      cleanup = () => {
+        if (hlsRef.current) {
+          hlsRef.current.destroy();
+          hlsRef.current = null;
+        }
+      };
+    }
+    // Non-HLS: src is set as a JSX prop, no imperative setup needed.
+
+    return cleanup;
+  }, [url]);
 
   const handleTimeUpdate = useCallback(() => {
     const video = videoRef.current;
@@ -156,15 +197,25 @@ function NativePlayer({
     };
   }, [initialPosition, handleTimeUpdate]);
 
+  const hls = isHLSUrl(url);
+
   return (
     <div className="aspect-video w-full overflow-hidden rounded-xl bg-surface-container-high">
+      {hls && !isReady && (
+        <div className="flex h-full w-full items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      )}
+      {/* For HLS: src is undefined — HLS.js attaches the media via the effect.
+          For regular URLs: src is set directly so the browser loads it natively. */}
       <video
         ref={videoRef}
-        src={url}
+        src={hls ? undefined : url}
         controls
         className="h-full w-full object-contain"
         preload="metadata"
         playsInline
+        style={{ display: hls && !isReady ? "none" : "block" }}
       >
         <track kind="captions" />
       </video>
