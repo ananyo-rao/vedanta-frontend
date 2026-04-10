@@ -9,10 +9,11 @@ describe("nav-items", () => {
   describe("sidebarNavItems", () => {
     it("has Courses, Mentorship, and Course Builder items", () => {
       expect(sidebarNavItems).toHaveLength(3);
+      // Course Builder appears first (BUILD category), then LEARN items
       expect(sidebarNavItems.map((i) => i.label)).toEqual([
+        "Course Builder",
         "Courses",
         "Mentorship",
-        "Course Builder",
       ]);
     });
 
@@ -21,7 +22,7 @@ describe("nav-items", () => {
         (i) => i.label === "Course Builder"
       );
       expect(builder?.requiredRole).toBe("admin");
-      expect(builder?.category).toBe("ADMIN");
+      expect(builder?.category).toBe("BUILD");
     });
 
     it("LEARN items have no requiredRole", () => {
