@@ -34,8 +34,12 @@ export function ProfileContent({
     .slice(0, 2);
 
   const handleSignOut = async () => {
-    await signOut();
-    router.push("/");
+    try {
+      await signOut();
+    } catch {
+      // Even if signOut fails (expired session), redirect to home
+    }
+    window.location.href = "/";
   };
 
   return (

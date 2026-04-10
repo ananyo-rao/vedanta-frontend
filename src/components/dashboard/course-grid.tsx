@@ -1,8 +1,8 @@
-import { type Course } from "@/types/course";
+import { type CourseWithEnrollment } from "@/types/course";
 import { CourseCard } from "@/components/dashboard/course-card";
 
 interface CourseGridProps {
-  courses: Course[];
+  courses: CourseWithEnrollment[];
 }
 
 export function CourseGrid({ courses }: CourseGridProps) {

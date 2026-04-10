@@ -1,46 +1,11 @@
-import { auth } from "@clerk/nextjs/server";
+"use client";
+
 import { CourseGrid } from "@/components/dashboard/course-grid";
 import { EmptyState } from "@/components/dashboard/empty-state";
-import { type Course } from "@/types/course";
+import { useStudentCourses } from "@/hooks/use-courses";
 
-async function fetchCourses(
-  token: string
-): Promise<{ data: Course[]; total: number }> {
-  const API_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/app";
-
-  const response = await fetch(`${API_URL}/api/courses`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch courses: ${response.status}`);
-  }
-
-  return response.json();
-}
-
-export default async function DashboardPage() {
-  const { getToken } = await auth();
-  const token = await getToken();
-
-  let courses: Course[] = [];
-  let error: string | null = null;
-
-  if (!token) {
-    error = "Unable to authenticate. Please try signing out and back in.";
-  } else {
-    try {
-      const result = await fetchCourses(token);
-      courses = result.data ?? [];
-    } catch (err) {
-      error = err instanceof Error ? err.message : "Failed to load courses";
-    }
-  }
+export default function DashboardPage() {
+  const { data: courses, isLoading, error } = useStudentCourses();
 
   return (
     <div>
@@ -53,13 +18,17 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {error ? (
+      {isLoading ? (
+        <div className="py-16 text-center text-sm text-on-surface-variant">
+          Loading courses...
+        </div>
+      ) : error ? (
         <div className="rounded-xl bg-error-container p-6 text-center">
           <p className="text-sm font-medium text-on-error-container">
-            {error}
+            {error instanceof Error ? error.message : "Failed to load courses"}
           </p>
         </div>
-      ) : courses.length > 0 ? (
+      ) : courses && courses.length > 0 ? (
         <CourseGrid courses={courses} />
       ) : (
         <EmptyState />

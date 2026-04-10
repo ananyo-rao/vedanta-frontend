@@ -33,7 +33,7 @@ describe("nav-items", () => {
       });
     });
 
-    it("Mentorship and Course Builder have Soon badge", () => {
+    it("Mentorship has Soon badge, Course Builder does not", () => {
       const mentorship = sidebarNavItems.find(
         (i) => i.label === "Mentorship"
       );
@@ -41,7 +41,7 @@ describe("nav-items", () => {
         (i) => i.label === "Course Builder"
       );
       expect(mentorship?.badge).toBe("Soon");
-      expect(builder?.badge).toBe("Soon");
+      expect(builder?.badge).toBeUndefined();
     });
 
     it("all items have /app/ prefix in href", () => {

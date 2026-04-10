@@ -132,13 +132,24 @@ describe("ProfileContent", () => {
 
   describe("Sign Out button", () => {
     it("calls signOut and redirects to home", async () => {
+      const originalLocation = window.location;
+      Object.defineProperty(window, "location", {
+        writable: true,
+        value: { ...originalLocation, href: "" },
+      });
+
       render(<ProfileContent {...defaultProps} />);
 
       fireEvent.click(screen.getByText("Sign Out"));
 
       expect(mockSignOut).toHaveBeenCalledTimes(1);
       await vi.waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith("/");
+        expect(window.location.href).toBe("/");
+      });
+
+      Object.defineProperty(window, "location", {
+        writable: true,
+        value: originalLocation,
       });
     });
   });

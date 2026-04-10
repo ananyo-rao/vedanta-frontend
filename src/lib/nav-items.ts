@@ -36,7 +36,6 @@ export const sidebarNavItems: NavItem[] = [
     label: "Course Builder",
     href: "/app/admin/course-builder",
     category: "ADMIN",
-    badge: "Soon",
     requiredRole: "admin",
   },
 ];

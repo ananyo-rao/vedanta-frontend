@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Serif, Plus_Jakarta_Sans } from "next/font/google";
+import { Noto_Serif, Plus_Jakarta_Sans, Noto_Sans_Devanagari } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -18,6 +18,13 @@ const plusJakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
+const notoDevanagari = Noto_Sans_Devanagari({
+  variable: "--font-devanagari",
+  subsets: ["devanagari"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Vedanta Academy",
   description:
@@ -33,7 +40,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html
         lang="en"
-        className={`${notoSerif.variable} ${plusJakarta.variable} h-full antialiased`}
+        className={`${notoSerif.variable} ${plusJakarta.variable} ${notoDevanagari.variable} h-full antialiased`}
       >
         <body className="min-h-full flex flex-col bg-surface text-on-surface font-sans">
           {children}
