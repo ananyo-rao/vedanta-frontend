@@ -24,6 +24,8 @@ const defaultProps = {
   userRole: "member" as const,
 };
 
+const adminProps = { ...defaultProps, userRole: "admin" as const };
+
 describe("ProfileContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -54,15 +56,21 @@ describe("ProfileContent", () => {
     expect(screen.getByText("Student")).toBeInTheDocument();
   });
 
-  describe("Account Settings toggle", () => {
-    it("does not show role panel by default", () => {
+  describe("Account Settings (admin only)", () => {
+    it("does not show Account Settings for member role", () => {
       render(<ProfileContent {...defaultProps} />);
 
-      expect(screen.queryByText("Role & Permissions")).not.toBeInTheDocument();
+      expect(screen.queryByText("Account Settings")).not.toBeInTheDocument();
+    });
+
+    it("shows Account Settings for admin role", () => {
+      render(<ProfileContent {...adminProps} />);
+
+      expect(screen.getByText("Account Settings")).toBeInTheDocument();
     });
 
     it("shows role panel when Account Settings is clicked", () => {
-      render(<ProfileContent {...defaultProps} />);
+      render(<ProfileContent {...adminProps} />);
 
       fireEvent.click(screen.getByText("Account Settings"));
 
@@ -71,7 +79,7 @@ describe("ProfileContent", () => {
     });
 
     it("hides role panel when Account Settings is clicked again", () => {
-      render(<ProfileContent {...defaultProps} />);
+      render(<ProfileContent {...adminProps} />);
 
       const button = screen.getByText("Account Settings");
       fireEvent.click(button);
@@ -81,30 +89,34 @@ describe("ProfileContent", () => {
       expect(screen.queryByText("Role & Permissions")).not.toBeInTheDocument();
     });
 
-    it("displays 'member' role badge", () => {
-      render(<ProfileContent {...defaultProps} userRole="member" />);
-
-      fireEvent.click(screen.getByText("Account Settings"));
-
-      expect(screen.getByText("member")).toBeInTheDocument();
-    });
-
-    it("displays 'admin' role badge", () => {
-      render(<ProfileContent {...defaultProps} userRole="admin" />);
+    it("displays admin role badge", () => {
+      render(<ProfileContent {...adminProps} />);
 
       fireEvent.click(screen.getByText("Account Settings"));
 
       expect(screen.getByText("admin")).toBeInTheDocument();
     });
+  });
 
-    it("shows coming soon message for role management", () => {
+  describe("User Management (admin only)", () => {
+    it("does not show User Management for member role", () => {
       render(<ProfileContent {...defaultProps} />);
 
-      fireEvent.click(screen.getByText("Account Settings"));
+      expect(screen.queryByText("User Management")).not.toBeInTheDocument();
+    });
 
-      expect(
-        screen.getByText(/role and permission management is coming soon/i)
-      ).toBeInTheDocument();
+    it("shows User Management for admin role", () => {
+      render(<ProfileContent {...adminProps} />);
+
+      expect(screen.getByText("User Management")).toBeInTheDocument();
+    });
+
+    it("navigates to /app/admin/users when clicked", () => {
+      render(<ProfileContent {...adminProps} />);
+
+      fireEvent.click(screen.getByText("User Management"));
+
+      expect(mockPush).toHaveBeenCalledWith("/app/admin/users");
     });
   });
 
