@@ -19,6 +19,13 @@ export interface BottomTabItem {
 
 export const sidebarNavItems: NavItem[] = [
   {
+    icon: Hammer,
+    label: "Course Builder",
+    href: "/app/admin/course-builder",
+    category: "BUILD",
+    requiredRole: "admin",
+  },
+  {
     icon: BookOpen,
     label: "Courses",
     href: "/app/dashboard",
@@ -30,13 +37,6 @@ export const sidebarNavItems: NavItem[] = [
     href: "/app/mentorship",
     category: "LEARN",
     badge: "Soon",
-  },
-  {
-    icon: Hammer,
-    label: "Course Builder",
-    href: "/app/admin/course-builder",
-    category: "ADMIN",
-    requiredRole: "admin",
   },
 ];
 

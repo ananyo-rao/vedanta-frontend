@@ -232,14 +232,3 @@ export function useIntrospectionResponses(courseId: string) {
   });
 }
 
-export function useInitVideoUpload() {
-  const { fetchToken } = useAuthToken();
-
-  return useMutation({
-    mutationFn: async (title: string) => {
-      const token = await fetchToken();
-      const result = await api.initVideoUpload(token, title);
-      return result.data;
-    },
-  });
-}

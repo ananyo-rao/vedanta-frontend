@@ -4,7 +4,6 @@ import type {
   Course,
   CoursePage,
   AdminIntrospectionResponse,
-  VideoUploadInit,
 } from "@/types/course";
 import type {
   CreateCourseInput,
@@ -172,14 +171,3 @@ export async function getIntrospectionResponses(
   );
 }
 
-// --- Video Upload ---
-
-export async function initVideoUpload(
-  token: string,
-  title: string
-): Promise<{ data: VideoUploadInit }> {
-  return fetchWithAuth(`${API_URL}/api/admin/upload/video`, token, {
-    method: "POST",
-    body: JSON.stringify({ title }),
-  });
-}

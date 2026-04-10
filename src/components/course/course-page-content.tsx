@@ -53,6 +53,19 @@ export function CoursePageContent({ courseId, pageId }: CoursePageContentProps) 
     );
   }
 
+  // If progress shows this page is locked, the useEffect redirect will fire.
+  // Show a loading state instead of a raw error so users never see the error flash.
+  if (progress) {
+    const thisPageStatus = progress.page_statuses.find((p) => p.page_id === pageId);
+    if (thisPageStatus?.status === "locked") {
+      return (
+        <div className="py-16 text-center text-sm text-on-surface-variant">
+          Loading...
+        </div>
+      );
+    }
+  }
+
   if (pageError || !pageData) {
     return (
       <div className="rounded-xl bg-error-container p-6 text-center">

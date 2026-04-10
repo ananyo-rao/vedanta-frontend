@@ -191,11 +191,19 @@ export function AdminCourseEditor({ courseId }: AdminCourseEditorProps) {
   };
 
   const handleDeletePage = async (pageId: string) => {
-    await deletePage.mutateAsync(pageId);
+    try {
+      await deletePage.mutateAsync(pageId);
+    } catch {
+      toast.error("Failed to delete page. Please try again.");
+    }
   };
 
   const handleReorder = async (pageIds: string[]) => {
-    await reorderPages.mutateAsync(pageIds);
+    try {
+      await reorderPages.mutateAsync(pageIds);
+    } catch {
+      toast.error("Failed to reorder pages. Please try again.");
+    }
   };
 
   return (

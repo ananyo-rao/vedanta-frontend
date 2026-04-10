@@ -25,6 +25,14 @@ function getVimeoId(url: string): string | null {
   return match ? match[1] : null;
 }
 
+function isBunnyEmbed(url: string): boolean {
+  try {
+    return new URL(url).hostname === "iframe.mediadelivery.net";
+  } catch {
+    return false;
+  }
+}
+
 function isHLSUrl(url: string): boolean {
   return url.includes(".m3u8");
 }
@@ -38,13 +46,15 @@ export function VideoPlayer({
 }: VideoPlayerProps) {
   const youtubeId = getYouTubeId(url);
   const vimeoId = getVimeoId(url);
+  const bunnyEmbed = isBunnyEmbed(url);
 
-  if (youtubeId || vimeoId) {
+  if (youtubeId || vimeoId || bunnyEmbed) {
     return (
       <EmbedPlayer
         url={url}
         youtubeId={youtubeId}
         vimeoId={vimeoId}
+        bunnyEmbed={bunnyEmbed}
         onProgressUpdate={onProgressUpdate}
       />
     );
@@ -62,18 +72,21 @@ export function VideoPlayer({
 }
 
 function EmbedPlayer({
+  url,
   youtubeId,
   vimeoId,
+  bunnyEmbed,
   onProgressUpdate,
 }: {
   url: string;
   youtubeId: string | null;
   vimeoId: string | null;
+  bunnyEmbed: boolean;
   onProgressUpdate?: (percent: number) => void;
 }) {
-  // Embedded videos (YouTube/Vimeo) don't expose progress to the parent page
-  // due to cross-origin restrictions. Automatically mark as 100% watched
-  // so the "Complete and Continue" button is always enabled for embeds.
+  // Embedded videos don't expose progress to the parent page due to cross-origin
+  // restrictions. Automatically mark as 100% watched so "Complete and Continue"
+  // is always enabled for embeds.
   useEffect(() => {
     onProgressUpdate?.(100);
   }, [onProgressUpdate]);
@@ -85,6 +98,7 @@ function EmbedPlayer({
       allowFullScreen
       title="Video"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      sandbox="allow-same-origin allow-scripts allow-presentation allow-popups"
     />
   ) : vimeoId ? (
     <iframe
@@ -93,6 +107,16 @@ function EmbedPlayer({
       allowFullScreen
       title="Video"
       allow="autoplay; fullscreen; picture-in-picture"
+      sandbox="allow-same-origin allow-scripts allow-presentation allow-popups"
+    />
+  ) : bunnyEmbed ? (
+    <iframe
+      src={url}
+      className="h-full w-full"
+      allowFullScreen
+      title="Video"
+      allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+      sandbox="allow-same-origin allow-scripts allow-presentation allow-popups"
     />
   ) : null;
 

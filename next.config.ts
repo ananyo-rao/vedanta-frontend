@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 
+// Build the connect-src directive dynamically to include the backend API origin
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/app";
+const apiOrigin = new URL(apiUrl).origin;
+
 const nextConfig: NextConfig = {
   output: "standalone", // Required for Docker/Cloud Run deployment
   headers: async () => [
@@ -14,9 +18,9 @@ const nextConfig: NextConfig = {
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: https: blob:",
             "font-src 'self' data:",
-            "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.dev http://localhost:8080",
-            "frame-src https://www.youtube.com https://player.vimeo.com https://*.clerk.accounts.dev https://*.clerk.dev",
-            "media-src 'self' https: blob:",
+            `connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.dev ${apiOrigin} https://*.b-cdn.net`,
+            "frame-src https://www.youtube.com https://player.vimeo.com https://iframe.mediadelivery.net https://*.clerk.accounts.dev https://*.clerk.dev",
+            "media-src 'self' https://*.b-cdn.net https: blob:",
             "worker-src 'self' blob:",
           ].join("; "),
         },

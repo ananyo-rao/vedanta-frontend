@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useInitVideoUpload } from "@/hooks/use-courses-admin";
+import { useAuth } from "@clerk/nextjs";
+import { API_URL } from "@/lib/api/fetch";
 import type { VideoSource } from "@/types/course";
 
 interface VideoUploaderProps {
@@ -30,7 +31,8 @@ function detectVideoSource(url: string): VideoSource {
     if (host === "youtube.com" || host === "www.youtube.com" || host === "youtu.be")
       return "youtube";
     if (host === "vimeo.com" || host === "www.vimeo.com") return "vimeo";
-    if (host.endsWith(".b-cdn.net")) return "bunny";
+    if (host.endsWith(".b-cdn.net") || host === "iframe.mediadelivery.net")
+      return "bunny";
     if (
       host.endsWith(".storage.googleapis.com") ||
       host === "storage.googleapis.com" ||
@@ -53,79 +55,82 @@ export function VideoUploader({
   const [url, setUrl] = useState(value || "");
   const [uploadState, setUploadState] = useState<UploadState>({ status: "idle" });
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const initUpload = useInitVideoUpload();
-
-  // Abort controller for cancel support
-  const abortRef = useRef<(() => void) | null>(null);
+  const xhrRef = useRef<XMLHttpRequest | null>(null);
+  const { getToken } = useAuth();
 
   const handleUrlChange = (newUrl: string) => {
     setUrl(newUrl);
-    const source = detectVideoSource(newUrl);
-    onChange(newUrl, source);
+    onChange(newUrl, detectVideoSource(newUrl));
   };
 
   const handleFileSelect = useCallback(
     async (file: File) => {
       if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-        setUploadState({ status: "error", message: `File exceeds ${MAX_FILE_SIZE_MB} MB limit.` });
+        setUploadState({
+          status: "error",
+          message: `File exceeds ${MAX_FILE_SIZE_MB} MB limit.`,
+        });
         return;
       }
 
       setUploadState({ status: "uploading", progress: 0, fileName: file.name });
 
       try {
-        // Step 1: Get TUS credentials from our backend
-        const creds = await initUpload.mutateAsync(
-          file.name.replace(/\.[^.]+$/, "") // strip extension for title
-        );
+        const token = await getToken();
+        if (!token) throw new Error("Not authenticated");
 
-        // Step 2: Upload directly to Bunny.net via TUS
-        const { Upload } = await import("tus-js-client");
+        const title = file.name.replace(/\.[^.]+$/, "");
+        const uploadUrl = `${API_URL}/api/admin/upload/video?title=${encodeURIComponent(title)}`;
 
-        await new Promise<void>((resolve, reject) => {
-          const upload = new Upload(file, {
-            endpoint: creds.tus_upload_url,
-            retryDelays: [0, 3000, 5000, 10000],
-            headers: {
-              AuthorizationSignature: creds.signature,
-              AuthorizationExpire: String(creds.expiry),
-              VideoId: creds.video_id,
-              LibraryId: creds.library_id,
-            },
-            metadata: {
-              filetype: file.type,
-              title: file.name,
-            },
-            onProgress(bytesUploaded, bytesTotal) {
-              const percent = Math.floor((bytesUploaded / bytesTotal) * 100);
+        const cdnUrl = await new Promise<string>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhrRef.current = xhr;
+
+          xhr.upload.addEventListener("progress", (e) => {
+            if (e.lengthComputable) {
+              const percent = Math.floor((e.loaded / e.total) * 100);
               setUploadState((prev) =>
-                prev.status === "uploading"
-                  ? { ...prev, progress: percent }
-                  : prev
+                prev.status === "uploading" ? { ...prev, progress: percent } : prev
               );
-            },
-            onSuccess() {
-              resolve();
-            },
-            onError(err) {
-              reject(err);
-            },
+            }
           });
 
-          abortRef.current = () => upload.abort();
-          upload.start();
+          xhr.addEventListener("load", () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const json = JSON.parse(xhr.responseText);
+                resolve(json.data.cdn_url);
+              } catch {
+                reject(new Error("Invalid response from server"));
+              }
+            } else {
+              try {
+                const json = JSON.parse(xhr.responseText);
+                reject(new Error(json?.error?.message || `Upload failed (HTTP ${xhr.status})`));
+              } catch {
+                reject(new Error(`Upload failed (HTTP ${xhr.status})`));
+              }
+            }
+          });
+
+          xhr.addEventListener("error", () => reject(new Error("Network error during upload")));
+          xhr.addEventListener("abort", () => reject(new Error("Upload cancelled")));
+
+          xhr.open("POST", uploadUrl);
+          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+          xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
+          xhr.send(file);
         });
 
-        // Step 3: Populate the URL with the Bunny CDN HLS URL
-        setUploadState({ status: "done", cdnUrl: creds.cdn_url, fileName: file.name });
-        setUrl(creds.cdn_url);
-        onChange(creds.cdn_url, "bunny");
+        setUploadState({ status: "done", cdnUrl, fileName: file.name });
+        setUrl(cdnUrl);
+        onChange(cdnUrl, "bunny");
       } catch (err) {
         const message = err instanceof Error ? err.message : "Upload failed";
         setUploadState({ status: "error", message });
       }
     },
-    [initUpload, onChange]
+    [getToken, onChange]
   );
 
   const handleDrop = useCallback(
@@ -138,7 +143,7 @@ export function VideoUploader({
   );
 
   const handleCancel = () => {
-    abortRef.current?.();
+    xhrRef.current?.abort();
     setUploadState({ status: "idle" });
   };
 
@@ -240,7 +245,7 @@ export function VideoUploader({
               </div>
               <Progress value={uploadState.progress} className="h-2" aria-label="Upload progress" />
               <p className="text-xs text-on-surface-variant">
-                Uploading… {uploadState.progress}%
+                Uploading to server… {uploadState.progress}%
               </p>
             </div>
           )}
@@ -253,15 +258,10 @@ export function VideoUploader({
                   {uploadState.fileName}
                 </p>
                 <p className="text-xs text-emerald-700">
-                  Uploaded — Bunny.net is transcoding to HLS (may take a few minutes)
+                  Uploaded — Bunny.net is transcoding to HLS (takes a few minutes)
                 </p>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleReset}
-                aria-label="Upload a different file"
-              >
+              <Button variant="ghost" size="sm" onClick={handleReset} aria-label="Upload a different file">
                 Change
               </Button>
             </div>
@@ -334,14 +334,8 @@ function VideoPreview({ url }: { url: string }) {
     );
   }
 
-  // MP4 / other direct URLs
   return (
-    <video
-      src={url}
-      controls
-      className="h-full w-full object-contain"
-      preload="metadata"
-    >
+    <video src={url} controls className="h-full w-full object-contain" preload="metadata">
       <track kind="captions" />
     </video>
   );

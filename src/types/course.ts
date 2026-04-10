@@ -105,15 +105,6 @@ export interface AdminIntrospectionResponse extends IntrospectionResponse {
   page_title: string;
 }
 
-// VideoUploadInit contains Bunny.net TUS credentials for direct browser upload.
-export interface VideoUploadInit {
-  video_id: string;
-  tus_upload_url: string;
-  signature: string;
-  expiry: number;
-  library_id: string;
-  cdn_url: string;
-}
 
 export interface CourseWithEnrollment extends Course {
   enrollment?: Enrollment | null;
