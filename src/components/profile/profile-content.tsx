@@ -66,37 +66,36 @@ export function ProfileContent({
           <span className="flex-1">Edit Profile</span>
           <ChevronRight className="h-4 w-4 text-on-surface-variant" />
         </button>
-        <button
-          onClick={() => setShowAccountSettings(!showAccountSettings)}
-          className="flex w-full items-center gap-3 rounded-lg px-4 py-3.5 text-left text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high"
-        >
-          <Settings className="h-5 w-5 text-on-surface-variant" />
-          <span className="flex-1">Account Settings</span>
-          <ChevronRight className={`h-4 w-4 text-on-surface-variant transition-transform ${showAccountSettings ? "rotate-90" : ""}`} />
-        </button>
+        {userRole === "admin" && (
+          <>
+            <button
+              onClick={() => setShowAccountSettings(!showAccountSettings)}
+              className="flex w-full items-center gap-3 rounded-lg px-4 py-3.5 text-left text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high"
+            >
+              <Settings className="h-5 w-5 text-on-surface-variant" />
+              <span className="flex-1">Account Settings</span>
+              <ChevronRight className={`h-4 w-4 text-on-surface-variant transition-transform ${showAccountSettings ? "rotate-90" : ""}`} />
+            </button>
 
-        {/* Account Settings panel */}
-        {showAccountSettings && (
-          <div className="mx-4 mt-2 rounded-lg bg-surface-container-low p-4">
-            <div className="mb-4 flex items-center gap-2">
-              <Shield className="h-4 w-4 text-primary" />
-              <span className="text-sm font-semibold text-on-surface">
-                Role &amp; Permissions
-              </span>
-            </div>
-            <div className="flex items-center justify-between rounded-md bg-surface-container px-3 py-2">
-              <span className="text-sm text-on-surface-variant">
-                Current Role
-              </span>
-              <span className="rounded-full bg-primary/10 px-3 py-0.5 text-xs font-semibold capitalize text-primary">
-                {userRole}
-              </span>
-            </div>
-            <p className="mt-3 text-xs leading-relaxed text-on-surface-variant">
-              Role and permission management is coming soon. Contact your
-              administrator to update your role.
-            </p>
-          </div>
+            {showAccountSettings && (
+              <div className="mx-4 mt-2 rounded-lg bg-surface-container-low p-4">
+                <div className="mb-4 flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-semibold text-on-surface">
+                    Role &amp; Permissions
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-md bg-surface-container px-3 py-2">
+                  <span className="text-sm text-on-surface-variant">
+                    Current Role
+                  </span>
+                  <span className="rounded-full bg-primary/10 px-3 py-0.5 text-xs font-semibold capitalize text-primary">
+                    {userRole}
+                  </span>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
