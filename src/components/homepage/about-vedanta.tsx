@@ -32,7 +32,7 @@ export function AboutVedanta() {
             <div className="relative">
               <div className="h-80 w-80 overflow-hidden rounded-2xl bg-surface-container-highest shadow-[0_4px_32px_rgba(30,27,19,0.10)]">
                 <Image
-                  src="/images/vedanta.avif"
+                  src="/images/vedanta.webp"
                   alt="Vedanta — the vision of non-duality"
                   width={320}
                   height={320}
