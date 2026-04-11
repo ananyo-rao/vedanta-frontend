@@ -5,8 +5,19 @@ import type {
   CourseProgress,
   Enrollment,
   IntrospectionResponse,
+  Course,
 } from "@/types/course";
 import { fetchWithAuth, API_URL } from "@/lib/api/fetch";
+
+// --- Public (unauthenticated) ---
+
+export async function listPublicCourses(): Promise<{ data: Course[]; total: number }> {
+  const res = await fetch(`${API_URL}/public/courses`);
+  if (!res.ok) {
+    throw new Error("Failed to fetch courses");
+  }
+  return res.json();
+}
 
 // --- Courses ---
 

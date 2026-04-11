@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function AboutVedanta() {
   return (
     <section
@@ -14,31 +16,28 @@ export function AboutVedanta() {
               What is Vedanta?
             </h3>
             <p className="mb-6 text-base leading-[1.6] text-on-surface-variant">
-              Vedanta is one of the six orthodox schools of Hindu philosophy. The
-              term literally means &ldquo;end of the Vedas,&rdquo; referring to
-              the Upanishads which form the concluding portion of Vedic
-              literature. It is a tradition of inquiry into the nature of
-              reality, the self, and the relationship between the two.
+              Advaita Vedanta, as revealed in the Upani&#x1E63;ads, teaches a
+              simple yet profound truth: the individual is not separate from the
+              ultimate reality, Brahman. The apparent sense of limitation,
+              bondage, and incompleteness experienced by the individual is due
+              to ignorance of one&rsquo;s true nature.
             </p>
             <p className="text-base leading-[1.6] text-on-surface-variant">
-              At its heart, Advaita Vedanta teaches that the individual self
-              (Atman) and the ultimate reality (Brahman) are one and the same.
-              This teaching, passed down through an unbroken lineage of masters,
-              invites the seeker to move beyond intellectual understanding into
-              direct realization of their true nature.
+              According to Swami Dayananda Saraswati, this ignorance
+              (avidy&amacr;) is the root problem, and self-knowledge
+              (&amacr;tma-j&ntilde;&amacr;na) is the only solution.
             </p>
           </div>
           <div className="flex items-center justify-center">
             <div className="relative">
-              <div className="h-80 w-80 rounded-2xl bg-surface-container-highest p-8">
-                <div className="flex h-full w-full items-center justify-center rounded-xl bg-surface-container">
-                  <span
-                    className="font-serif text-8xl text-primary opacity-30"
-                    aria-hidden="true"
-                  >
-                    &#x0950;
-                  </span>
-                </div>
+              <div className="h-80 w-80 overflow-hidden rounded-2xl bg-surface-container-highest shadow-[0_4px_32px_rgba(30,27,19,0.10)]">
+                <Image
+                  src="/images/vedanta.avif"
+                  alt="Vedanta — the vision of non-duality"
+                  width={320}
+                  height={320}
+                  className="h-full w-full object-cover"
+                />
               </div>
               <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-xl bg-primary-container opacity-60" />
             </div>

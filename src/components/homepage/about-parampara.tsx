@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function AboutParampara() {
   return (
     <section id="parampara" className="scroll-mt-20 bg-surface px-6 py-24 lg:px-20">
@@ -6,29 +8,14 @@ export function AboutParampara() {
           {/* Visual element on left */}
           <div className="flex items-center justify-center">
             <div className="relative">
-              <div className="h-80 w-80 rounded-2xl bg-surface-container p-8">
-                <div className="flex h-full w-full flex-col items-center justify-center gap-4 rounded-xl bg-surface-container-low">
-                  <span
-                    className="font-serif text-5xl text-secondary opacity-50"
-                    aria-hidden="true"
-                  >
-                    &#x0950;
-                  </span>
-                  <div className="h-px w-16 bg-outline-variant/30" />
-                  <span
-                    className="font-serif text-3xl text-tertiary opacity-40"
-                    aria-hidden="true"
-                  >
-                    &#x0950;
-                  </span>
-                  <div className="h-px w-16 bg-outline-variant/30" />
-                  <span
-                    className="font-serif text-xl text-primary opacity-30"
-                    aria-hidden="true"
-                  >
-                    &#x0950;
-                  </span>
-                </div>
+              <div className="h-80 w-80 overflow-hidden rounded-2xl bg-surface-container shadow-[0_4px_32px_rgba(30,27,19,0.10)]">
+                <Image
+                  src="/images/guru-shishya-parampara.webp"
+                  alt="Guru-Shishya Parampara — the unbroken teaching lineage of Arsha Vidya"
+                  width={320}
+                  height={320}
+                  className="h-full w-full object-cover"
+                />
               </div>
               <div className="absolute -left-4 -top-4 h-24 w-24 rounded-xl bg-secondary-container opacity-60" />
             </div>
@@ -49,11 +36,12 @@ export function AboutParampara() {
               just intellectual content but the living spirit of inquiry.
             </p>
             <p className="text-base leading-[1.6] text-on-surface-variant">
-              This lineage stretches back thousands of years, from the great Adi
-              Shankaracharya through generations of dedicated acharyas. At
-              Vedanta Academy, we honour this tradition by maintaining the
-              personal, dialogue-based method of teaching that allows each
-              student to progress at their own pace of understanding.
+              This lineage stretches back thousands of years — from the great Adi
+              Shankaracharya through generations of dedicated acharyas. The Arsha
+              Vidya tradition, established by Pujya Swami Dayananda Saraswati,
+              continues this sacred transmission. At Vedanta Academy, we honour
+              this lineage through the personal, dialogue-based method of teaching
+              that allows each student to progress in their own understanding.
             </p>
           </div>
         </div>

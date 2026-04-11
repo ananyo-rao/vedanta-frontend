@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Serif, Plus_Jakarta_Sans, Noto_Sans_Devanagari } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
+import { QueryProvider } from "@/lib/query-provider";
 import "./globals.css";
 
 const notoSerif = Noto_Serif({
@@ -43,7 +44,9 @@ export default function RootLayout({
         className={`${notoSerif.variable} ${plusJakarta.variable} ${notoDevanagari.variable} h-full antialiased`}
       >
         <body className="min-h-full flex flex-col bg-surface text-on-surface font-sans">
-          {children}
+          <QueryProvider>
+            {children}
+          </QueryProvider>
           <Toaster position="bottom-center" />
         </body>
       </html>
