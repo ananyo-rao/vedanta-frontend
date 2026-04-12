@@ -42,8 +42,9 @@ export const introspectionContentSchema = z.object({
 });
 
 export const meditationContentSchema = z.object({
-  video_url: z.string().min(1, "Video URL is required"),
-  video_source: z.enum(["gcs", "youtube", "vimeo", "external", "bunny"]),
+  audio_url: z.string().optional(),
+  video_url: z.string().optional(),
+  video_source: z.enum(["gcs", "youtube", "vimeo", "external", "bunny"]).optional(),
   description: z
     .string()
     .max(500, "Description must be 500 characters or less")
