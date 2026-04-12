@@ -43,6 +43,7 @@ jobs:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
+    environment: development
     permissions:
       contents: read
       id-token: write   # Required for Workload Identity Federation
@@ -72,7 +73,7 @@ jobs:
       - name: Fetch Clerk publishable key from Secret Manager
         id: clerk-key
         run: |
-          echo "key=$(gcloud secrets versions access latest --secret=CLERK_PUBLISHABLE_KEY_DEV --project=${{ secrets.GCP_PROJECT_ID }})" >> "$GITHUB_OUTPUT"
+          echo "key=$(gcloud secrets versions access latest --secret=CLERK_PUBLISHABLE_KEY --project=${{ secrets.GCP_PROJECT_ID }})" >> "$GITHUB_OUTPUT"
 
       - name: Build and push image
         uses: docker/build-push-action@v6
@@ -84,21 +85,22 @@ jobs:
             ${{ env.IMAGE }}:dev-latest
           build-args: |
             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ steps.clerk-key.outputs.key }}
-            NEXT_PUBLIC_API_URL=${{ secrets.DEV_API_URL }}
+            NEXT_PUBLIC_API_URL=${{ secrets.API_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Deploy to Cloud Run (Dev)
+        id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: ${{ secrets.CLOUDRUN_FRONTEND_DEV }}
+          service: ${{ secrets.CLOUDRUN_FRONTEND_SERVICE }}
           region: ${{ secrets.GCP_REGION }}
           image: ${{ env.IMAGE }}:${{ github.sha }}
           env_vars: |
-            NEXT_PUBLIC_API_URL=${{ secrets.DEV_API_URL }}
+            NEXT_PUBLIC_API_URL=${{ secrets.API_URL }}
           secrets: |
-            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=CLERK_PUBLISHABLE_KEY_DEV:latest
-            CLERK_SECRET_KEY=CLERK_SECRET_KEY_DEV:latest
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=CLERK_PUBLISHABLE_KEY:latest
+            CLERK_SECRET_KEY=CLERK_SECRET_KEY:latest
 
       - name: Show deployed URL
         run: echo "Deployed to ${{ steps.deploy.outputs.url }}"
