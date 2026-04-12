@@ -1,8 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { useAuthHref } from "@/hooks/use-auth-href";
 
 export function HeroSection() {
@@ -11,44 +9,52 @@ export function HeroSection() {
   return (
     <section
       id="home"
-      className="scroll-mt-20 watercolor-bg relative flex min-h-[750px] items-center overflow-hidden px-6 py-20 lg:px-20"
+      className="scroll-mt-20 relative flex flex-col items-center justify-center overflow-hidden px-6 py-28 text-center lg:py-36"
     >
-      {/* Background Om symbol */}
+      {/* Background Dakshinamurthy — inverted so the black bg disappears via multiply blend,
+          sepia shifts the remaining figure toward warm saffron tones */}
       <div
-        className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-5"
+        className="pointer-events-none absolute inset-0"
         aria-hidden="true"
       >
-        <span className="font-serif text-[40rem] leading-none text-on-surface">
-          &#x0950;
-        </span>
+        <Image
+          src="/images/dakshinamurthy.png"
+          alt=""
+          fill
+          className="object-contain object-center"
+          style={{
+            filter: "invert(1) sepia(1) hue-rotate(5deg) saturate(0.5)",
+            mixBlendMode: "multiply",
+            opacity: 0.07,
+          }}
+          priority
+        />
       </div>
 
-      <div className="relative z-10 max-w-4xl">
-        <span className="mb-6 block text-xs font-bold uppercase tracking-[0.2em] text-tertiary">
-          Ancient wisdom for the modern seeker
+      <div className="relative z-10 mx-auto max-w-2xl">
+        <span className="mb-7 block text-[11px] font-semibold uppercase tracking-[0.25em] text-tertiary">
+          Vedanta Vidyalaya
         </span>
 
-        <h2 className="mb-8 font-serif text-5xl font-black leading-[1.1] tracking-tight text-on-surface md:text-7xl">
-          Vedanta, a journey{" "}
-          <span className="block">to discover the self</span>
-        </h2>
+        <h1 className="mb-7 font-serif text-5xl font-semibold leading-[1.15] text-primary md:text-6xl">
+          Vedanta is the
+          <br />
+          study of the{" "}
+          <em className="italic text-primary-container">Self.</em>
+        </h1>
 
-        <p className="mb-12 max-w-2xl text-xl leading-relaxed text-on-surface-variant md:text-2xl">
-          Live guided courses in Advaita Vedanta, Bhagavad Gita, and meditation,
-          designed for deep introspection and clarity.
+        <p className="mb-11 text-lg font-light leading-relaxed text-on-surface-variant md:text-xl">
+          An online learning platform for the traditional study of Advaita
+          Vedanta, as taught in the unbroken Guru-Shishya Parampara from Adi
+          Shankaracharya to the present day.
         </p>
 
-        <div className="flex flex-col gap-6 sm:flex-row">
-          <Button size="lg" asChild>
-            <Link href={coursesHref}>
-              Explore Courses
-              <ArrowRight className="h-5 w-5" />
-            </Link>
-          </Button>
-          <Button variant="outline" size="lg" asChild>
-            <Link href="#teachers">Meet Our Teachers</Link>
-          </Button>
-        </div>
+        <a
+          href={coursesHref}
+          className="inline-block rounded-lg bg-primary px-10 py-4 text-sm font-semibold uppercase tracking-widest text-on-primary transition-opacity hover:opacity-90"
+        >
+          Begin Your Study
+        </a>
       </div>
     </section>
   );
