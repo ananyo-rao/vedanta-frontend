@@ -313,22 +313,16 @@ describe("meditationContentSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects missing video_url", () => {
+  it("accepts missing video_url (audio_url takes precedence)", () => {
     const result = meditationContentSchema.safeParse({
-      video_source: "youtube",
+      audio_url: "https://example.com/audio.mp3",
     });
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
   });
 
-  it("rejects empty video_url", () => {
-    const result = meditationContentSchema.safeParse({
-      video_url: "",
-      video_source: "youtube",
-    });
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe("Video URL is required");
-    }
+  it("accepts empty object (all fields optional for audio-only meditations)", () => {
+    const result = meditationContentSchema.safeParse({});
+    expect(result.success).toBe(true);
   });
 
   it("rejects description longer than 500 characters", () => {
