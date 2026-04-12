@@ -9,7 +9,7 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <div className="mb-8">
+      <div className="mx-auto mb-8 max-w-5xl pl-4">
         <h1 className="font-serif text-3xl font-bold text-on-surface">
           Courses
         </h1>
@@ -18,7 +18,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {isLoading ? (
+      {isLoading || courses === undefined ? (
         <div className="py-16 text-center text-sm text-on-surface-variant">
           Loading courses...
         </div>
@@ -28,7 +28,7 @@ export default function DashboardPage() {
             {error instanceof Error ? error.message : "Failed to load courses"}
           </p>
         </div>
-      ) : courses && courses.length > 0 ? (
+      ) : courses.length > 0 ? (
         <CourseGrid courses={courses} />
       ) : (
         <EmptyState />

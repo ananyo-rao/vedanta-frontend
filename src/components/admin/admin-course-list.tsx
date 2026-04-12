@@ -10,7 +10,7 @@ import { format } from "date-fns";
 export function AdminCourseList() {
   const { data: courses, isLoading, error } = useAdminCourses();
 
-  if (isLoading) {
+  if (isLoading || courses === undefined) {
     return (
       <div className="py-16 text-center text-sm text-on-surface-variant">
         Loading courses...
