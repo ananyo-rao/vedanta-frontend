@@ -24,11 +24,11 @@ export default function DashboardPage() {
             {error instanceof Error ? error.message : "Failed to load courses"}
           </p>
         </div>
-      ) : isLoading || courses == null ? (
+      ) : isLoading || courses === undefined ? (
         <div className="py-16 text-center text-sm text-on-surface-variant">
           Loading courses...
         </div>
-      ) : courses.length > 0 ? (
+      ) : courses && courses.length > 0 ? (
         <CourseGrid courses={courses} />
       ) : (
         <EmptyState />
