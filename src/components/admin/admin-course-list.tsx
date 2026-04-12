@@ -20,7 +20,7 @@ export function AdminCourseList() {
     );
   }
 
-  if (isLoading || courses === undefined) {
+  if (isLoading || courses == null) {
     return (
       <div className="py-16 text-center text-sm text-on-surface-variant">
         Loading courses...

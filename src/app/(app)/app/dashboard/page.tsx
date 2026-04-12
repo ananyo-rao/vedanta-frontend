@@ -24,7 +24,7 @@ export default function DashboardPage() {
             {error instanceof Error ? error.message : "Failed to load courses"}
           </p>
         </div>
-      ) : isLoading || courses === undefined ? (
+      ) : isLoading || courses == null ? (
         <div className="py-16 text-center text-sm text-on-surface-variant">
           Loading courses...
         </div>
