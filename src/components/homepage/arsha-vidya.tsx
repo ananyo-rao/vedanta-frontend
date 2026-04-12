@@ -64,16 +64,22 @@ export function ArshVidya() {
               </span>
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
-              {["Rishikesh", "Coimbatore", "Nagpur", "Pennsylvania, USA"].map(
-                (loc) => (
-                  <span
-                    key={loc}
-                    className="rounded-full bg-primary-fixed px-3 py-1 text-[11px] font-medium text-on-primary-container"
-                  >
-                    {loc}
-                  </span>
-                )
-              )}
+              {[
+                { label: "Rishikesh", href: "https://www.dayananda.org/" },
+                { label: "Coimbatore", href: "https://arshavidya.in/" },
+                { label: "Sailesburg", href: "https://arshavidya.org/" },
+                { label: "Nagpur", href: "https://avgnagpur.org/" },
+              ].map(({ label, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full bg-primary-fixed px-3 py-1 text-[11px] font-medium text-on-primary-container hover:opacity-80"
+                >
+                  {label}
+                </a>
+              ))}
             </div>
           </div>
         </div>

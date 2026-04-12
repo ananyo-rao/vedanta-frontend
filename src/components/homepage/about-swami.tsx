@@ -64,9 +64,14 @@ export function AboutSwami() {
                   Āchārya Sabhā
                 </strong>{" "}
                 — uniting Hindu spiritual leaders — and founded the{" "}
-                <strong className="font-medium text-on-surface">
+                <a
+                  href="https://aimforseva.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-on-surface underline decoration-outline-variant underline-offset-2 hover:text-primary"
+                >
                   All India Movement (AIM) for Seva
-                </strong>
+                </a>
                 , bringing education, healthcare, and infrastructure to remote
                 villages across India.
               </p>

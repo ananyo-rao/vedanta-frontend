@@ -28,7 +28,7 @@ export function AboutVedanta() {
           </p>
           <p className="text-base font-light leading-[1.9] text-on-surface-variant">
             The central teaching of Advaita Vedanta is direct and unequivocal:
-            the reality of the individual self (&Amacr;tman) and the universal
+            the reality of the individual self (Ātman) and the universal
             reality (Brahman) are one and the same. What we take to be
             limitation, inadequacy, and incompleteness is born not of a
             deficiency in ourselves, but of{" "}
