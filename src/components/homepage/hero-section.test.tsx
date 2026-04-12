@@ -13,36 +13,28 @@ describe("HeroSection", () => {
     mockUseAuthHref.mockReset();
   });
 
-  it("links 'Explore Courses' to /app/dashboard when signed in", () => {
+  it("links 'Begin Your Study' to /app/dashboard when signed in", () => {
     mockUseAuthHref.mockReturnValue("/app/dashboard");
     render(<HeroSection />);
 
-    const link = screen.getByRole("link", { name: /explore courses/i });
+    const link = screen.getByRole("link", { name: /begin your study/i });
     expect(link).toHaveAttribute("href", "/app/dashboard");
   });
 
-  it("links 'Explore Courses' to /sign-in when signed out", () => {
+  it("links 'Begin Your Study' to /sign-in when signed out", () => {
     mockUseAuthHref.mockReturnValue("/sign-in");
     render(<HeroSection />);
 
-    const link = screen.getByRole("link", { name: /explore courses/i });
+    const link = screen.getByRole("link", { name: /begin your study/i });
     expect(link).toHaveAttribute("href", "/sign-in");
-  });
-
-  it("links 'Meet Our Teachers' to #teachers anchor", () => {
-    mockUseAuthHref.mockReturnValue("/sign-in");
-    render(<HeroSection />);
-
-    const link = screen.getByRole("link", { name: /meet our teachers/i });
-    expect(link).toHaveAttribute("href", "#teachers");
   });
 
   it("renders the hero heading", () => {
     mockUseAuthHref.mockReturnValue("/sign-in");
     render(<HeroSection />);
 
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
-      /vedanta, a journey/i
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      /vedanta is the/i
     );
   });
 

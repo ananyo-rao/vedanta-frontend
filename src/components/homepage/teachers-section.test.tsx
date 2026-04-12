@@ -3,11 +3,11 @@ import { describe, it, expect } from "vitest";
 import { TeachersSection } from "./teachers-section";
 
 describe("TeachersSection", () => {
-  it("renders Swami Satchitananda as the teacher", () => {
+  it("renders Swami Sachidananda as the teacher", () => {
     render(<TeachersSection />);
 
     const headings = screen.getAllByRole("heading", {
-      name: "Swami Satchitananda",
+      name: /swami sachid/i,
     });
     expect(headings.length).toBeGreaterThanOrEqual(1);
   });
@@ -32,9 +32,10 @@ describe("TeachersSection", () => {
     expect(section?.className).toContain("scroll-mt-20");
   });
 
-  it("renders the teacher subtitle", () => {
+  it("renders the Acharya eyebrow label", () => {
     render(<TeachersSection />);
 
-    expect(screen.getByText("Your Teacher")).toBeInTheDocument();
+    const matches = screen.getAllByText(/āchārya/i);
+    expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 });

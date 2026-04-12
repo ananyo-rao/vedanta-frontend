@@ -40,11 +40,10 @@ describe("CourseCard", () => {
     expect(screen.queryByText("Swami Satchitananda")).not.toBeInTheDocument();
   });
 
-  it("renders Om placeholder when no thumbnail", () => {
+  it("renders Dakshinamurthy placeholder image when no thumbnail", () => {
     render(<CourseCard course={mockCourse} />);
-    const placeholder = screen.getByText("\u0950");
-    expect(placeholder).toBeInTheDocument();
-    expect(placeholder).toHaveAttribute("aria-hidden", "true");
+    const img = screen.getByRole("img", { name: /dakshinamurthy/i });
+    expect(img).toBeInTheDocument();
   });
 
   it("has proper article landmark", () => {
@@ -160,9 +159,8 @@ describe("CourseCard", () => {
 
   it("handles thumbnail_url being null gracefully", () => {
     render(<CourseCard course={mockCourse} />);
-    // Should show Om placeholder instead of image
-    expect(screen.getByText("\u0950")).toBeInTheDocument();
-    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    // Should show Dakshinamurthy placeholder image
+    expect(screen.getByRole("img", { name: /dakshinamurthy/i })).toBeInTheDocument();
   });
 
   // ===========================================================================

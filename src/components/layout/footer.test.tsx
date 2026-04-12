@@ -18,18 +18,12 @@ describe("Footer", () => {
       mockUseAuthHref.mockReturnValue("/app/dashboard");
     });
 
-    it("links all quick links to /app/dashboard", () => {
+    it("links 'Courses' to /app/dashboard", () => {
       render(<Footer />);
-
-      const links = [
-        screen.getByRole("link", { name: "Online Library" }),
-        screen.getByRole("link", { name: "Course Enrollment" }),
-        screen.getByRole("link", { name: "Student Login" }),
-      ];
-
-      links.forEach((link) => {
-        expect(link).toHaveAttribute("href", "/app/dashboard");
-      });
+      expect(screen.getByRole("link", { name: "Courses" })).toHaveAttribute(
+        "href",
+        "/app/dashboard"
+      );
     });
   });
 
@@ -38,34 +32,31 @@ describe("Footer", () => {
       mockUseAuthHref.mockReturnValue("/sign-in");
     });
 
-    it("links all quick links to /sign-in", () => {
+    it("links 'Courses' to /sign-in", () => {
       render(<Footer />);
-
-      const links = [
-        screen.getByRole("link", { name: "Online Library" }),
-        screen.getByRole("link", { name: "Course Enrollment" }),
-        screen.getByRole("link", { name: "Student Login" }),
-      ];
-
-      links.forEach((link) => {
-        expect(link).toHaveAttribute("href", "/sign-in");
-      });
+      expect(screen.getByRole("link", { name: "Courses" })).toHaveAttribute(
+        "href",
+        "/sign-in"
+      );
     });
   });
 
-  it("renders the Quick Links heading", () => {
+  it("renders static nav links", () => {
     mockUseAuthHref.mockReturnValue("/sign-in");
     render(<Footer />);
 
-    expect(screen.getByText("Quick Links")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Teachers" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "About" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Privacy Policy" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Contact Us" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Terms" })).toBeInTheDocument();
   });
 
-  it("renders the Vedanta Academy logo and name", () => {
+  it("renders the site name", () => {
     mockUseAuthHref.mockReturnValue("/sign-in");
     render(<Footer />);
 
-    expect(screen.getByAltText("Vedanta Academy")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Vedanta Academy" })).toBeInTheDocument();
+    expect(screen.getByText("Vedanta Vidyalaya")).toBeInTheDocument();
   });
 
   it("renders copyright notice with current year", () => {
@@ -74,14 +65,5 @@ describe("Footer", () => {
 
     const year = new Date().getFullYear();
     expect(screen.getByText(new RegExp(`${year}`))).toBeInTheDocument();
-  });
-
-  it("renders 3 quick links", () => {
-    mockUseAuthHref.mockReturnValue("/sign-in");
-    render(<Footer />);
-
-    const list = screen.getByRole("list");
-    const items = list.querySelectorAll("li");
-    expect(items).toHaveLength(3);
   });
 });

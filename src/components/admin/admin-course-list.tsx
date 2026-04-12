@@ -10,20 +10,20 @@ import { format } from "date-fns";
 export function AdminCourseList() {
   const { data: courses, isLoading, error } = useAdminCourses();
 
-  if (isLoading || courses === undefined) {
-    return (
-      <div className="py-16 text-center text-sm text-on-surface-variant">
-        Loading courses...
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="rounded-xl bg-error-container p-6 text-center">
         <p className="text-sm font-medium text-on-error-container">
           {error instanceof Error ? error.message : "Failed to load courses"}
         </p>
+      </div>
+    );
+  }
+
+  if (isLoading || courses === undefined) {
+    return (
+      <div className="py-16 text-center text-sm text-on-surface-variant">
+        Loading courses...
       </div>
     );
   }
