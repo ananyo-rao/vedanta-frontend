@@ -13,6 +13,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { VideoUploader } from "@/components/admin/video-uploader";
+import { ImageUploader } from "@/components/admin/image-uploader";
 import type { CourseWithPages, VideoSource } from "@/types/course";
 import type { CreateCourseInput } from "@/types/course-schemas";
 
@@ -124,16 +125,11 @@ export function CourseIntroForm({ course, onSave, saving }: CourseIntroFormProps
             label="Intro Video"
           />
 
-          <div className="space-y-2">
-            <Label htmlFor="course-thumbnail">Thumbnail URL (optional)</Label>
-            <Input
-              id="course-thumbnail"
-              type="url"
-              value={thumbnail}
-              onChange={(e) => setThumbnail(e.target.value)}
-              placeholder="https://..."
-            />
-          </div>
+          <ImageUploader
+            value={thumbnail}
+            onChange={(url) => setThumbnail(url)}
+            label="Thumbnail (optional)"
+          />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">

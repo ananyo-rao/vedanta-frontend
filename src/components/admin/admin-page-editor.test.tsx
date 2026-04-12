@@ -34,6 +34,29 @@ vi.mock("@/components/admin/video-uploader", () => ({
   ),
 }));
 
+// Mock AudioUploader
+vi.mock("@/components/admin/audio-uploader", () => ({
+  AudioUploader: ({
+    value,
+    onChange,
+    label,
+  }: {
+    value: string;
+    onChange: (url: string) => void;
+    label?: string;
+  }) => (
+    <div data-testid="audio-uploader">
+      <label htmlFor="mock-audio-url">{label || "Audio File"}</label>
+      <input
+        id="mock-audio-url"
+        data-testid="audio-url-input"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+  ),
+}));
+
 import { AdminPageEditor } from "./admin-page-editor";
 
 describe("AdminPageEditor", () => {
@@ -374,7 +397,7 @@ describe("AdminPageEditor", () => {
   });
 
   describe("meditation page type", () => {
-    it("renders meditation-specific fields: description (optional) and video uploader", () => {
+    it("renders meditation-specific fields: description (optional) and audio uploader", () => {
       renderWithProviders(
         <AdminPageEditor
           pageType="meditation"
@@ -386,10 +409,10 @@ describe("AdminPageEditor", () => {
       expect(
         screen.getByLabelText(/Description \(optional\)/)
       ).toBeInTheDocument();
-      expect(screen.getByTestId("video-uploader")).toBeInTheDocument();
+      expect(screen.getByTestId("audio-uploader")).toBeInTheDocument();
     });
 
-    it("validates video URL is required for meditation", async () => {
+    it("validates audio file is required for meditation", async () => {
       const { toast } = await import("sonner");
       const user = userEvent.setup();
       renderWithProviders(
@@ -407,7 +430,7 @@ describe("AdminPageEditor", () => {
       fireEvent.submit(form);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith("Video URL is required");
+        expect(toast.error).toHaveBeenCalledWith("Audio file is required");
       });
     });
 
@@ -424,8 +447,8 @@ describe("AdminPageEditor", () => {
 
       await user.type(screen.getByLabelText(/Title/), "Evening Meditation");
       await user.type(
-        screen.getByTestId("video-url-input"),
-        "https://vimeo.com/12345"
+        screen.getByTestId("audio-url-input"),
+        "https://cdn.example.com/audio/meditation.mp3"
       );
       await user.click(screen.getByText("Save Page"));
 
@@ -435,8 +458,7 @@ describe("AdminPageEditor", () => {
           page_type: "meditation",
           is_strict: true,
           content: {
-            video_url: "https://vimeo.com/12345",
-            video_source: "external",
+            audio_url: "https://cdn.example.com/audio/meditation.mp3",
             description: undefined,
           },
         });

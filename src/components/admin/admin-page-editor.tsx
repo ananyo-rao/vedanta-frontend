@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { VideoUploader } from "@/components/admin/video-uploader";
+import { AudioUploader } from "@/components/admin/audio-uploader";
 import type {
   CoursePage,
   PageType,
@@ -57,10 +58,7 @@ export function AdminPageEditor({
   // Meditation fields
   const medContent =
     page?.page_type === "meditation" ? (page.content as MeditationContent) : null;
-  const [medVideoUrl, setMedVideoUrl] = useState(medContent?.video_url || "");
-  const [medVideoSource, setMedVideoSource] = useState<VideoSource>(
-    medContent?.video_source || "external"
-  );
+  const [medAudioUrl, setMedAudioUrl] = useState(medContent?.audio_url || "");
   const [medDescription, setMedDescription] = useState(
     medContent?.description || ""
   );
@@ -103,13 +101,12 @@ export function AdminPageEditor({
         explanation: explanation.trim(),
       };
     } else {
-      if (!medVideoUrl.trim()) {
-        toast.error("Video URL is required");
+      if (!medAudioUrl.trim()) {
+        toast.error("Audio file is required");
         return;
       }
       content = {
-        video_url: medVideoUrl.trim(),
-        video_source: medVideoSource,
+        audio_url: medAudioUrl.trim(),
         description: medDescription.trim() || undefined,
       };
     }
@@ -229,14 +226,10 @@ export function AdminPageEditor({
               {medDescription.length}/500 characters
             </p>
           </div>
-          <VideoUploader
-            value={medVideoUrl}
-            source={medVideoSource}
-            onChange={(url, source) => {
-              setMedVideoUrl(url);
-              setMedVideoSource(source);
-            }}
-            label="Meditation Video"
+          <AudioUploader
+            value={medAudioUrl}
+            onChange={(url) => setMedAudioUrl(url)}
+            label="Guided Meditation Audio (MP3)"
           />
         </>
       )}

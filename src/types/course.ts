@@ -58,8 +58,11 @@ export interface IntrospectionContent {
 }
 
 export interface MeditationContent {
-  video_url: string;
-  video_source: VideoSource;
+  // New: MP3 audio URL for audio-based meditation (takes precedence over video_url)
+  audio_url?: string;
+  // Legacy: video-based meditation (used when audio_url is absent)
+  video_url?: string;
+  video_source?: VideoSource;
   description?: string;
 }
 
