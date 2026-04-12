@@ -183,20 +183,43 @@ function NativePlayer({
     return cleanup;
   }, [url]);
 
+  const reportProgress = useCallback((video: HTMLVideoElement) => {
+    if (!video.duration) return;
+    const percent = Math.floor((video.currentTime / video.duration) * 100);
+    onProgressUpdate?.(percent);
+    return percent;
+  }, [onProgressUpdate]);
+
   const handleTimeUpdate = useCallback(() => {
     const video = videoRef.current;
     if (!video || !video.duration) return;
 
-    const percent = Math.floor((video.currentTime / video.duration) * 100);
-    onProgressUpdate?.(percent);
+    const percent = reportProgress(video);
 
     // Send progress update every 10 seconds
     const now = Date.now();
     if (now - lastUpdateRef.current >= 10000) {
       lastUpdateRef.current = now;
       updateProgress.mutate({
-        progressPercent: percent,
+        progressPercent: percent ?? 0,
         lastPosition: Math.floor(video.currentTime),
+      });
+    }
+  }, [reportProgress, updateProgress]);
+
+  const handleSeeked = useCallback(() => {
+    const video = videoRef.current;
+    if (!video || !video.duration) return;
+    reportProgress(video);
+  }, [reportProgress]);
+
+  const handleEnded = useCallback(() => {
+    onProgressUpdate?.(100);
+    const video = videoRef.current;
+    if (video) {
+      updateProgress.mutate({
+        progressPercent: 100,
+        lastPosition: Math.floor(video.duration || 0),
       });
     }
   }, [onProgressUpdate, updateProgress]);
@@ -214,12 +237,16 @@ function NativePlayer({
 
     video.addEventListener("loadedmetadata", handleLoadedMetadata);
     video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("seeked", handleSeeked);
+    video.addEventListener("ended", handleEnded);
 
     return () => {
       video.removeEventListener("loadedmetadata", handleLoadedMetadata);
       video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("seeked", handleSeeked);
+      video.removeEventListener("ended", handleEnded);
     };
-  }, [initialPosition, handleTimeUpdate]);
+  }, [initialPosition, handleTimeUpdate, handleSeeked, handleEnded]);
 
   const hls = isHLSUrl(url);
 
