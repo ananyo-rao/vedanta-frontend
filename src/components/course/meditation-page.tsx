@@ -6,6 +6,7 @@ import { Play, Pause, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VideoPlayer } from "@/components/course/video-player";
 import { CompleteAndContinue } from "@/components/course/complete-and-continue";
+import { useUpdateVideoProgress } from "@/hooks/use-courses";
 import type { CoursePage, MeditationContent, PageStatus } from "@/types/course";
 
 interface MeditationPageProps {
@@ -78,7 +79,11 @@ function AudioMeditationPage({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   // Track the highest listen percent reached (only ever increases)
-  const [listenPercent, setListenPercent] = useState(0);
+  const [listenPercent, setListenPercent] = useState(
+    page.video_progress?.progress_percent || 0
+  );
+  const lastSavedRef = useRef(0);
+  const updateProgress = useUpdateVideoProgress(courseId, page.id);
 
   const canComplete = listenPercent >= 90 || !page.is_strict;
 
@@ -104,8 +109,20 @@ function AudioMeditationPage({
     if (!audio || !audio.duration) return;
     setCurrentTime(audio.currentTime);
     const pct = Math.floor((audio.currentTime / audio.duration) * 100);
-    setListenPercent((prev) => Math.max(prev, pct));
-  }, []);
+    setListenPercent((prev) => {
+      const next = Math.max(prev, pct);
+      // Persist every 10 seconds
+      const now = Date.now();
+      if (now - lastSavedRef.current >= 10000) {
+        lastSavedRef.current = now;
+        updateProgress.mutate({
+          progressPercent: next,
+          lastPosition: Math.floor(audio.currentTime),
+        });
+      }
+      return next;
+    });
+  }, [updateProgress]);
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const audio = audioRef.current;
@@ -123,6 +140,10 @@ function AudioMeditationPage({
     const onEnded = () => {
       setIsPlaying(false);
       setListenPercent(100);
+      updateProgress.mutate({
+        progressPercent: 100,
+        lastPosition: Math.floor(audio?.duration || 0),
+      });
     };
     const onLoaded = () => setDuration(audio.duration || 0);
     audio.addEventListener("play", onPlay);
@@ -137,7 +158,7 @@ function AudioMeditationPage({
       audio.removeEventListener("loadedmetadata", onLoaded);
       audio.removeEventListener("timeupdate", handleTimeUpdate);
     };
-  }, [handleTimeUpdate]);
+  }, [handleTimeUpdate, updateProgress]);
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 

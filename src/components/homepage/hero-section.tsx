@@ -45,8 +45,8 @@ export function HeroSection() {
 
         <p className="mb-11 text-lg font-light leading-relaxed text-on-surface-variant md:text-xl">
           An online learning platform for the traditional study of Advaita
-          Vedanta, as taught in the unbroken Guru-Shishya Parampara from Adi
-          Shankaracharya to the present day.
+          Vedanta, the study of the ultimate self, which is immortal, limitless,
+          ever-happy, ever-secure, ever-fulfilled.
         </p>
 
         <a
