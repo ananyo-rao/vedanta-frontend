@@ -4,6 +4,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderWithProviders } from "@/test/test-utils";
 import type { CoursePage, MeditationContent } from "@/types/course";
 
+vi.mock("@/hooks/use-courses", () => ({
+  useUpdateVideoProgress: () => ({ mutate: vi.fn() }),
+}));
+
 vi.mock("@/components/course/video-player", () => ({
   VideoPlayer: ({
     url,
