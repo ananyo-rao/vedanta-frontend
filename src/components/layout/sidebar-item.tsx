@@ -18,6 +18,7 @@ interface SidebarItemProps {
   label: string;
   href: string;
   badge?: string;
+  external?: boolean;
 }
 
 export function SidebarItem({
@@ -25,14 +26,16 @@ export function SidebarItem({
   label,
   href,
   badge,
+  external,
 }: SidebarItemProps) {
   const { collapsed } = useSidebar();
   const pathname = usePathname();
-  const active = pathname.startsWith(href);
+  const active = !external && pathname.startsWith(href);
 
   const link = (
     <Link
       href={href}
+      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       className={cn(
         "flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-[var(--duration-base)] ease-[var(--ease-intentional)]",
         active

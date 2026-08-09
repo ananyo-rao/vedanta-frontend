@@ -1,5 +1,11 @@
-import { BookOpen, MessageCircle, User, Hammer, type LucideIcon } from "lucide-react";
+import { BookOpen, MessageCircle, User, Hammer, Code2, type LucideIcon } from "lucide-react";
 import type { Role } from "@/lib/clerk";
+
+// The Dharma Sadhana developer portal (a separate app). Admins get a link to it
+// from the sidebar. Overridable via env; falls back to the deployed URL.
+const DEVELOPER_PORTAL_URL =
+  process.env.NEXT_PUBLIC_DEVELOPER_PORTAL_URL ||
+  "https://dharma-sadhana-frontend-m73slm6i6q-el.a.run.app/developer";
 
 export interface NavItem {
   icon: LucideIcon;
@@ -8,6 +14,7 @@ export interface NavItem {
   badge?: string;
   category: string;
   requiredRole?: Role;
+  external?: boolean;
 }
 
 export interface BottomTabItem {
@@ -24,6 +31,14 @@ export const sidebarNavItems: NavItem[] = [
     href: "/app/admin/course-builder",
     category: "BUILD",
     requiredRole: "admin",
+  },
+  {
+    icon: Code2,
+    label: "Developer Portal",
+    href: DEVELOPER_PORTAL_URL,
+    category: "BUILD",
+    requiredRole: "admin",
+    external: true,
   },
   {
     icon: BookOpen,
