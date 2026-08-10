@@ -4,6 +4,11 @@ import type { NextConfig } from "next";
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/app";
 const apiOrigin = new URL(apiUrl).origin;
 
+// The Dharma Sadhana backend (external) powers the AI chat tab. Its origin must
+// be allowed in connect-src or the browser blocks the fetch.
+const dharmaApiUrl = process.env.NEXT_PUBLIC_DHARMA_API_URL || "";
+const dharmaOrigin = dharmaApiUrl ? new URL(dharmaApiUrl).origin : "";
+
 const nextConfig: NextConfig = {
   output: "standalone", // Required for Docker/Cloud Run deployment
   headers: async () => [
@@ -18,7 +23,7 @@ const nextConfig: NextConfig = {
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: https: blob:",
             "font-src 'self' data:",
-            `connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.dev ${apiOrigin} https://*.b-cdn.net`,
+            `connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.dev ${apiOrigin} ${dharmaOrigin} https://*.b-cdn.net`,
             "frame-src https://www.youtube.com https://player.vimeo.com https://iframe.mediadelivery.net https://*.clerk.accounts.dev https://*.clerk.dev",
             "media-src 'self' https://*.b-cdn.net https: blob:",
             "worker-src 'self' blob:",
