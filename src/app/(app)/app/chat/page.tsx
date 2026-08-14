@@ -3,21 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import { Send, Sparkles, Loader2 } from "lucide-react";
 import { useChatHistory, useSendChat } from "@/hooks/use-chat";
-import type { ChatMessage } from "@/lib/api/dharma-chat";
 
 export default function ChatPage() {
-  const { data: history, isLoading } = useChatHistory();
+  // The history query cache is the single source of truth; useSendChat appends
+  // the user turn and the assistant reply to it optimistically.
+  const { data: messages = [], isLoading } = useChatHistory();
   const send = useSendChat();
 
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-
-  // Seed from server history once it loads.
-  useEffect(() => {
-    if (history) setMessages(history);
-  }, [history]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -28,9 +23,7 @@ export default function ChatPage() {
     if (!text || send.isPending) return;
     setError(null);
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: text }]);
     send.mutate(text, {
-      onSuccess: (reply) => setMessages((prev) => [...prev, reply]),
       onError: (e) =>
         setError(e instanceof Error ? e.message : "Failed to send message"),
     });
