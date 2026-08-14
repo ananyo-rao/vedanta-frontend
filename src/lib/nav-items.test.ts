@@ -7,14 +7,22 @@ import {
 
 describe("nav-items", () => {
   describe("sidebarNavItems", () => {
-    it("has Courses, Mentorship, and Course Builder items", () => {
-      expect(sidebarNavItems).toHaveLength(3);
-      // Course Builder appears first (BUILD category), then LEARN items
+    it("has BUILD items (Course Builder, Developer Portal) then LEARN items", () => {
+      expect(sidebarNavItems).toHaveLength(5);
       expect(sidebarNavItems.map((i) => i.label)).toEqual([
         "Course Builder",
+        "Developer Portal",
         "Courses",
+        "AI Chat",
         "Mentorship",
       ]);
+    });
+
+    it("Developer Portal is an external admin-only link", () => {
+      const dev = sidebarNavItems.find((i) => i.label === "Developer Portal");
+      expect(dev?.requiredRole).toBe("admin");
+      expect(dev?.external).toBe(true);
+      expect(dev?.href).toMatch(/^https?:\/\//);
     });
 
     it("Course Builder requires admin role", () => {
@@ -45,19 +53,21 @@ describe("nav-items", () => {
       expect(builder?.badge).toBeUndefined();
     });
 
-    it("all items have /app/ prefix in href", () => {
-      sidebarNavItems.forEach((item) => {
-        expect(item.href).toMatch(/^\/app\//);
-      });
+    it("internal items have /app/ prefix in href", () => {
+      sidebarNavItems
+        .filter((item) => !item.external)
+        .forEach((item) => {
+          expect(item.href).toMatch(/^\/app\//);
+        });
     });
   });
 
   describe("bottomTabItems", () => {
-    it("has 4 tabs: Courses, Mentorship, Builder, Profile", () => {
+    it("has 4 tabs: Courses, AI Chat, Builder, Profile", () => {
       expect(bottomTabItems).toHaveLength(4);
       expect(bottomTabItems.map((t) => t.label)).toEqual([
         "Courses",
-        "Mentorship",
+        "AI Chat",
         "Builder",
         "Profile",
       ]);
