@@ -6,7 +6,7 @@ const DHARMA_API_URL =
   process.env.NEXT_PUBLIC_DHARMA_API_URL || "http://localhost:8081/api";
 
 export interface ChatMessage {
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "guide";
   content: string;
   created_at?: string;
 }
@@ -28,4 +28,41 @@ export async function sendChat(
 export async function getChatHistory(token: string): Promise<ChatMessage[]> {
   const res = await fetchWithAuth(`${DHARMA_API_URL}/chat/history`, token);
   return (res.data as ChatMessage[]) ?? [];
+}
+
+// ---- Guide chat (human guide replies asynchronously; no auto-reply) ----
+
+export async function sendGuide(
+  token: string,
+  message: string
+): Promise<ChatMessage> {
+  const res = await fetchWithAuth(`${DHARMA_API_URL}/guide`, token, {
+    method: "POST",
+    body: JSON.stringify({ message }),
+  });
+  return res.data as ChatMessage;
+}
+
+export async function getGuideHistory(token: string): Promise<ChatMessage[]> {
+  const res = await fetchWithAuth(`${DHARMA_API_URL}/guide/history`, token);
+  return (res.data as ChatMessage[]) ?? [];
+}
+
+// ---- Journal (private timestamped logs; no reply) ----
+
+export interface JournalEntry {
+  content: string;
+  created_at: string;
+}
+
+export async function addJournal(token: string, content: string): Promise<void> {
+  await fetchWithAuth(`${DHARMA_API_URL}/journal`, token, {
+    method: "POST",
+    body: JSON.stringify({ content }),
+  });
+}
+
+export async function getJournal(token: string): Promise<JournalEntry[]> {
+  const res = await fetchWithAuth(`${DHARMA_API_URL}/journal`, token);
+  return (res.data as JournalEntry[]) ?? [];
 }

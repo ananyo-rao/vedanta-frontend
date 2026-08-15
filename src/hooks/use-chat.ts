@@ -7,6 +7,8 @@ import type { ChatMessage } from "@/lib/api/dharma-chat";
 
 const chatKeys = {
   history: ["dharma-chat", "history"] as const,
+  guide: ["dharma-chat", "guide"] as const,
+  journal: ["dharma-chat", "journal"] as const,
 };
 
 function useAuthToken() {
@@ -56,6 +58,57 @@ export function useSendChat() {
     },
     onSuccess: (reply) => {
       append(reply);
+    },
+  });
+}
+
+// ---- Guide chat: user messages are stored; a human guide replies later, so we
+// poll the history to surface replies as they arrive. ----
+export function useGuideHistory() {
+  const { fetchToken, ready } = useAuthToken();
+  return useQuery({
+    queryKey: chatKeys.guide,
+    queryFn: async () => chatApi.getGuideHistory(await fetchToken()),
+    enabled: ready,
+    retry: 1,
+    refetchInterval: 15000,
+  });
+}
+
+export function useSendGuide() {
+  const { fetchToken } = useAuthToken();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (message: string) =>
+      chatApi.sendGuide(await fetchToken(), message),
+    onMutate: (message: string) => {
+      queryClient.setQueryData<ChatMessage[]>(chatKeys.guide, (prev = []) => [
+        ...prev,
+        { role: "user", content: message },
+      ]);
+    },
+  });
+}
+
+// ---- Journal: private timestamped logs, no reply. ----
+export function useJournal() {
+  const { fetchToken, ready } = useAuthToken();
+  return useQuery({
+    queryKey: chatKeys.journal,
+    queryFn: async () => chatApi.getJournal(await fetchToken()),
+    enabled: ready,
+    retry: 1,
+  });
+}
+
+export function useAddJournal() {
+  const { fetchToken } = useAuthToken();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (content: string) =>
+      chatApi.addJournal(await fetchToken(), content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.journal });
     },
   });
 }

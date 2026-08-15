@@ -8,13 +8,14 @@ import {
 describe("nav-items", () => {
   describe("sidebarNavItems", () => {
     it("has BUILD items (Course Builder, Developer Portal) then LEARN items", () => {
-      expect(sidebarNavItems).toHaveLength(5);
+      expect(sidebarNavItems).toHaveLength(6);
       expect(sidebarNavItems.map((i) => i.label)).toEqual([
         "Course Builder",
         "Developer Portal",
         "Courses",
         "AI Chat",
-        "Mentorship",
+        "Guide Chat",
+        "Journal",
       ]);
     });
 
@@ -42,15 +43,11 @@ describe("nav-items", () => {
       });
     });
 
-    it("Mentorship has Soon badge, Course Builder does not", () => {
-      const mentorship = sidebarNavItems.find(
-        (i) => i.label === "Mentorship"
-      );
-      const builder = sidebarNavItems.find(
-        (i) => i.label === "Course Builder"
-      );
-      expect(mentorship?.badge).toBe("Soon");
-      expect(builder?.badge).toBeUndefined();
+    it("has AI Chat, Guide Chat, and Journal in LEARN", () => {
+      const learn = sidebarNavItems
+        .filter((i) => i.category === "LEARN")
+        .map((i) => i.label);
+      expect(learn).toEqual(["Courses", "AI Chat", "Guide Chat", "Journal"]);
     });
 
     it("internal items have /app/ prefix in href", () => {
