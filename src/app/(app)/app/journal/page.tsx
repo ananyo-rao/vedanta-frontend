@@ -208,25 +208,26 @@ export default function JournalPage() {
           )}
 
           {/* Write on the page */}
-          <div className="mt-5 flex items-end gap-2 border-t border-[#e7dcc5] pt-4">
-            <Feather className="mb-2 h-4 w-4 shrink-0 text-[#c9a24a]" />
+          <div className="mt-5 border-t border-[#e7dcc5] pt-4">
+            <div className="mb-1.5 flex items-center gap-1.5 text-xs text-[#b3a488]">
+              <Feather className="h-3.5 w-3.5 text-[#c9a24a]" /> Write a note
+            </div>
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addNote(); }
-              }}
               placeholder={`Write a note for ${current.toLocaleDateString([], { month: "long", day: "numeric" })}…`}
-              rows={2}
-              className="flex-1 resize-none bg-transparent font-serif text-[15px] text-[#3f362c] placeholder:text-[#bcb09a] outline-none"
+              rows={10}
+              className="w-full resize-y bg-transparent font-serif text-[15px] leading-relaxed text-[#3f362c] placeholder:text-[#bcb09a] outline-none"
             />
-            <button
-              onClick={addNote}
-              disabled={!note.trim() || add.isPending}
-              className="rounded-lg bg-[#7a6a4f] px-3 py-1.5 text-sm text-[#faf6ee] hover:bg-[#6b5d49] disabled:opacity-40"
-            >
-              {add.isPending ? "…" : "Add"}
-            </button>
+            <div className="mt-2 flex justify-end">
+              <button
+                onClick={addNote}
+                disabled={!note.trim() || add.isPending}
+                className="rounded-lg bg-[#7a6a4f] px-4 py-1.5 text-sm text-[#faf6ee] hover:bg-[#6b5d49] disabled:opacity-40"
+              >
+                {add.isPending ? "Adding…" : "Add note"}
+              </button>
+            </div>
           </div>
         </div>
 
