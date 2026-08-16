@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { GraduationCap, Plus, Trash2, Loader2 } from "lucide-react";
-import { useTeachings, useAddTeaching, useDeleteTeaching } from "@/hooks/use-teachings";
+import { GraduationCap, Plus, Trash2, Pencil, X, Loader2 } from "lucide-react";
+import {
+  useTeachings,
+  useAddTeaching,
+  useUpdateTeaching,
+  useDeleteTeaching,
+} from "@/hooks/use-teachings";
+import type { Teaching } from "@/lib/api/dharma-teachings";
 
 type TType = "vedantic" | "psychological";
 
@@ -10,6 +16,14 @@ function localToISO(v: string): string {
   if (!v) return "";
   const d = new Date(v);
   return isNaN(d.getTime()) ? "" : d.toISOString();
+}
+function isoToLocalInput(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
+    d.getHours()
+  )}:${pad(d.getMinutes())}`;
 }
 const fmt = (iso: string) => {
   const d = new Date(iso);
@@ -19,34 +33,50 @@ const fmt = (iso: string) => {
 export default function AdminTeachingsPage() {
   const { data: teachings = [], isLoading } = useTeachings();
   const add = useAddTeaching();
+  const update = useUpdateTeaching();
   const del = useDeleteTeaching();
 
+  const [editId, setEditId] = useState<string | null>(null);
   const [type, setType] = useState<TType>("vedantic");
   const [questions, setQuestions] = useState("");
   const [description, setDescription] = useState("");
   const [when, setWhen] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const handleAdd = () => {
-    if (!description.trim() || add.isPending) return;
+  const saving = add.isPending || update.isPending;
+
+  const reset = () => {
+    setEditId(null);
+    setType("vedantic");
+    setQuestions("");
+    setDescription("");
+    setWhen("");
+  };
+
+  const startEdit = (t: Teaching) => {
+    setEditId(t.id);
+    setType(t.type);
+    setQuestions(t.questions.join("\n"));
+    setDescription(t.description);
+    setWhen(isoToLocalInput(t.logged_at));
+  };
+
+  const handleSave = () => {
+    if (!description.trim() || saving) return;
     setError(null);
-    add.mutate(
-      {
-        type,
-        questions: questions.split("\n").map((q) => q.trim()).filter(Boolean),
-        description: description.trim(),
-        timestamp: localToISO(when),
-      },
-      {
-        onSuccess: () => {
-          setQuestions("");
-          setDescription("");
-          setWhen("");
-        },
-        onError: (e) =>
-          setError(e instanceof Error ? e.message : "Failed to add teaching"),
-      }
-    );
+    const input = {
+      type,
+      questions: questions.split("\n").map((q) => q.trim()).filter(Boolean),
+      description: description.trim(),
+      timestamp: localToISO(when),
+    };
+    const onErr = (e: unknown) =>
+      setError(e instanceof Error ? e.message : "Failed to save teaching");
+    if (editId) {
+      update.mutate({ id: editId, input }, { onSuccess: reset, onError: onErr });
+    } else {
+      add.mutate(input, { onSuccess: reset, onError: onErr });
+    }
   };
 
   return (
@@ -61,8 +91,21 @@ export default function AdminTeachingsPage() {
         </div>
       </div>
 
-      {/* Add form */}
+      {/* Add / edit form */}
       <div className="mb-6 space-y-3 rounded-xl border border-outline-variant/10 bg-surface-container-low p-4">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-on-surface">
+            {editId ? "Edit teaching" : "Add a teaching"}
+          </span>
+          {editId && (
+            <button
+              onClick={reset}
+              className="flex items-center gap-1 text-xs text-on-surface-variant hover:text-on-surface"
+            >
+              <X className="h-3.5 w-3.5" /> Cancel edit
+            </button>
+          )}
+        </div>
         <div className="flex gap-2">
           {(["vedantic", "psychological"] as TType[]).map((t) => (
             <button
@@ -105,11 +148,12 @@ export default function AdminTeachingsPage() {
             <span className="text-on-surface-variant/60">(defaults to now)</span>
           </label>
           <button
-            onClick={handleAdd}
-            disabled={!description.trim() || add.isPending}
+            onClick={handleSave}
+            disabled={!description.trim() || saving}
             className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
           >
-            <Plus className="h-4 w-4" /> {add.isPending ? "Adding…" : "Add teaching"}
+            <Plus className="h-4 w-4" />
+            {saving ? "Saving…" : editId ? "Save changes" : "Add teaching"}
           </button>
         </div>
       </div>
@@ -126,7 +170,9 @@ export default function AdminTeachingsPage() {
         {teachings.map((t) => (
           <div
             key={t.id}
-            className="group flex items-start justify-between gap-3 rounded-lg border border-outline-variant/10 bg-surface-container-low p-3"
+            className={`group flex items-start justify-between gap-3 rounded-lg border bg-surface-container-low p-3 ${
+              editId === t.id ? "border-primary/40" : "border-outline-variant/10"
+            }`}
           >
             <div className="min-w-0">
               <div className="mb-1 flex items-center gap-2">
@@ -150,13 +196,25 @@ export default function AdminTeachingsPage() {
                 </ul>
               )}
             </div>
-            <button
-              onClick={() => del.mutate(t.id)}
-              aria-label="Delete"
-              className="text-on-surface-variant opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
+            <div className="flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+              <button
+                onClick={() => startEdit(t)}
+                aria-label="Edit"
+                className="text-on-surface-variant hover:text-primary"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => {
+                  del.mutate(t.id);
+                  if (editId === t.id) reset();
+                }}
+                aria-label="Delete"
+                className="text-on-surface-variant hover:text-red-500"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         ))}
       </div>

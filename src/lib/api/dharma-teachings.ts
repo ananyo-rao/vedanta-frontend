@@ -30,6 +30,17 @@ export async function addTeaching(token: string, input: NewTeaching): Promise<vo
   });
 }
 
+export async function updateTeaching(
+  token: string,
+  id: string,
+  input: NewTeaching
+): Promise<void> {
+  await fetchWithAuth(`${DHARMA_API_URL}/teachings/${id}`, token, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}
+
 export async function deleteTeaching(token: string, id: string): Promise<void> {
   await fetchWithAuth(`${DHARMA_API_URL}/teachings/${id}`, token, {
     method: "DELETE",

@@ -38,6 +38,16 @@ export function useAddTeaching() {
   });
 }
 
+export function useUpdateTeaching() {
+  const { fetchToken } = useAuthToken();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: { id: string; input: NewTeaching }) =>
+      api.updateTeaching(await fetchToken(), vars.id, vars.input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: teachingKeys.list }),
+  });
+}
+
 export function useDeleteTeaching() {
   const { fetchToken } = useAuthToken();
   const queryClient = useQueryClient();
