@@ -105,8 +105,31 @@ export function useAddJournal() {
   const { fetchToken } = useAuthToken();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (content: string) =>
-      chatApi.addJournal(await fetchToken(), content),
+    mutationFn: async (vars: { content: string; loggedAt?: string }) =>
+      chatApi.addJournal(await fetchToken(), vars.content, vars.loggedAt),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.journal });
+    },
+  });
+}
+
+export function useUpdateJournal() {
+  const { fetchToken } = useAuthToken();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: { id: string; content: string; loggedAt?: string }) =>
+      chatApi.updateJournal(await fetchToken(), vars.id, vars.content, vars.loggedAt),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.journal });
+    },
+  });
+}
+
+export function useDeleteJournal() {
+  const { fetchToken } = useAuthToken();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => chatApi.deleteJournal(await fetchToken(), id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: chatKeys.journal });
     },

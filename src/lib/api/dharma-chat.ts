@@ -51,14 +51,39 @@ export async function getGuideHistory(token: string): Promise<ChatMessage[]> {
 // ---- Journal (private timestamped logs; no reply) ----
 
 export interface JournalEntry {
+  id: string;
   content: string;
-  created_at: string;
+  logged_at: string;
 }
 
-export async function addJournal(token: string, content: string): Promise<void> {
+// loggedAt is an optional ISO timestamp so a user can backdate a past
+// recollection; omitted/empty means now.
+export async function addJournal(
+  token: string,
+  content: string,
+  loggedAt?: string
+): Promise<void> {
   await fetchWithAuth(`${DHARMA_API_URL}/journal`, token, {
     method: "POST",
-    body: JSON.stringify({ content }),
+    body: JSON.stringify({ content, logged_at: loggedAt ?? "" }),
+  });
+}
+
+export async function updateJournal(
+  token: string,
+  id: string,
+  content: string,
+  loggedAt?: string
+): Promise<void> {
+  await fetchWithAuth(`${DHARMA_API_URL}/journal/${id}`, token, {
+    method: "PATCH",
+    body: JSON.stringify({ content, logged_at: loggedAt ?? "" }),
+  });
+}
+
+export async function deleteJournal(token: string, id: string): Promise<void> {
+  await fetchWithAuth(`${DHARMA_API_URL}/journal/${id}`, token, {
+    method: "DELETE",
   });
 }
 
