@@ -86,6 +86,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ steps.clerk-key.outputs.key }}
             NEXT_PUBLIC_API_URL=${{ secrets.API_URL }}
+            NEXT_PUBLIC_DHARMA_API_URL=https://dharma-sadhana-backend-m73slm6i6q-el.a.run.app/api
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
