@@ -1,4 +1,4 @@
-import { BookOpen, MessageCircle, User, Hammer, Code2, Sparkles, Compass, NotebookPen, type LucideIcon } from "lucide-react";
+import { BookOpen, MessageCircle, User, Hammer, Code2, Sparkles, Compass, NotebookPen, Flame, type LucideIcon } from "lucide-react";
 import type { Role } from "@/lib/clerk";
 
 // The Dharma Sadhana developer portal (a separate app). Admins get a link to it
@@ -63,6 +63,12 @@ export const sidebarNavItems: NavItem[] = [
     label: "Journal",
     href: "/app/journal",
     category: "LEARN",
+  },
+  {
+    icon: Flame,
+    label: "Tapas",
+    href: "/app/tapas",
+    category: "PRACTICE",
   },
 ];
 
