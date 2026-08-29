@@ -17,8 +17,10 @@ export interface ChatMetadata {
     title: string;
     source: string;
     reference: string;
-    content: string;
-    application: string;
+    content?: string;
+    application?: string;
+    problem?: string;
+    solution?: string;
   } | null;
   journal?: {
     entries_used: { date: string; snippet: string; connection: string }[];

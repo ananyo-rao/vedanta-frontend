@@ -17,28 +17,56 @@ import {
 import { useChatHistory, useSendChat } from "@/hooks/use-chat";
 import type { ChatMessage, ChatMetadata } from "@/lib/api/dharma-chat";
 
-// ---- Step labels & icons ----
+// ---- Collapsible section ----
 
-const STEP_META: Record<string, { label: string; icon: typeof Brain; verb: string }> = {
-  chat_context_analyzer: { label: "Understanding", icon: Brain, verb: "Interpreting your question" },
-  chat_teaching_retriever: { label: "Searching Teachings", icon: Search, verb: "Finding relevant teachings" },
-  chat_journal_selector: { label: "Reviewing Journal", icon: NotebookPen, verb: "Selecting relevant journal entries" },
-  chat_response_composer: { label: "Composing", icon: MessageSquare, verb: "Composing the response" },
-};
-
-// ---- Bubble wrapper ----
-
-function AiBubble({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+function Section({
+  icon: Icon,
+  title,
+  subtitle,
+  defaultOpen = false,
+  children,
+  className = "",
+}: {
+  icon: typeof BookOpen;
+  title: string;
+  subtitle?: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="flex justify-start">
-      <div className={`max-w-[85%] rounded-2xl rounded-bl-sm px-4 py-3 ${className}`}>
-        {children}
-      </div>
+    <div className={`rounded-lg border ${className}`}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center gap-2 px-3 py-2.5 text-left transition-colors hover:bg-surface-container/50"
+      >
+        <Icon className="h-4 w-4 flex-shrink-0 text-primary/70" />
+        <div className="flex-1 min-w-0">
+          <span className="text-sm font-medium text-on-surface">{title}</span>
+          {subtitle && (
+            <span className="ml-1.5 text-xs text-on-surface-variant">{subtitle}</span>
+          )}
+        </div>
+        {open ? (
+          <ChevronDown className="h-3.5 w-3.5 flex-shrink-0 text-on-surface-variant/50" />
+        ) : (
+          <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-on-surface-variant/50" />
+        )}
+      </button>
+      {open && <div className="border-t border-inherit px-3 py-2.5">{children}</div>}
     </div>
   );
 }
 
-// ---- Intermediate step detail ----
+// ---- Step detail for chain of thought ----
+
+const STEP_META: Record<string, { label: string; icon: typeof Brain; verb: string }> = {
+  chat_context_analyzer: { label: "Understanding Your Question", icon: Brain, verb: "Interpreting your question" },
+  chat_teaching_retriever: { label: "Searching Teachings", icon: Search, verb: "Finding relevant teachings" },
+  chat_journal_selector: { label: "Reviewing Your Journal", icon: NotebookPen, verb: "Selecting relevant journal entries" },
+  chat_response_composer: { label: "Composing Response", icon: MessageSquare, verb: "Composing the response" },
+};
 
 function StepDetail({ step }: { step: NonNullable<ChatMetadata["steps"]>[number] }) {
   const [open, setOpen] = useState(false);
@@ -48,33 +76,25 @@ function StepDetail({ step }: { step: NonNullable<ChatMetadata["steps"]>[number]
   const output = step.output;
 
   return (
-    <div className="border-l-2 border-primary/20 pl-3">
+    <div className="border-l-2 border-primary/15 pl-3 py-1">
       <button
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center gap-2 text-left transition-colors hover:text-on-surface"
+        className="flex w-full items-center gap-2 text-left"
       >
-        <Icon className="h-3.5 w-3.5 flex-shrink-0 text-primary/60" />
-        <span className="flex-1 text-xs font-medium text-on-surface-variant">
-          {label}
-        </span>
-        <span className="text-[10px] text-on-surface-variant/50">
-          {step.model} &middot; {step.duration_ms}ms
-        </span>
+        <Icon className="h-3.5 w-3.5 flex-shrink-0 text-primary/50" />
+        <span className="flex-1 text-xs font-medium text-on-surface-variant">{label}</span>
+        <span className="text-[10px] text-on-surface-variant/40">{step.model} · {step.duration_ms}ms</span>
         {output && (
           open
-            ? <ChevronDown className="h-3 w-3 text-on-surface-variant/40" />
-            : <ChevronRight className="h-3 w-3 text-on-surface-variant/40" />
+            ? <ChevronDown className="h-3 w-3 text-on-surface-variant/30" />
+            : <ChevronRight className="h-3 w-3 text-on-surface-variant/30" />
         )}
       </button>
-
       {step.summary && !open && (
-        <p className="mt-0.5 text-[11px] text-on-surface-variant/60 ml-5.5">
-          {step.summary}
-        </p>
+        <p className="mt-0.5 ml-5.5 text-[11px] text-on-surface-variant/50">{step.summary}</p>
       )}
-
       {open && output && (
-        <div className="mt-1.5 ml-5.5 space-y-1 text-xs text-on-surface-variant/70">
+        <div className="mt-1.5 ml-5.5 space-y-1 text-xs text-on-surface-variant/60">
           {renderStepOutput(step.node_name, output)}
         </div>
       )}
@@ -104,7 +124,7 @@ function renderStepOutput(nodeName: string, output: Record<string, unknown>) {
           {teachings.map((t, i) => (
             <li key={i}>
               <span className="font-medium text-on-surface-variant">{t.title || t.reference}</span>
-              {t.source && <span className="text-on-surface-variant/50"> — {t.source}</span>}
+              {t.source && <span className="text-on-surface-variant/40"> — {t.source}</span>}
             </li>
           ))}
         </ul>
@@ -118,8 +138,8 @@ function renderStepOutput(nodeName: string, output: Record<string, unknown>) {
           {entries.map((e, i) => (
             <li key={i}>
               <span className="font-medium text-on-surface-variant">{e.date}:</span>{" "}
-              <span>{e.content?.slice(0, 100)}{(e.content?.length ?? 0) > 100 ? "…" : ""}</span>
-              {e.relevance && <p className="text-[10px] text-on-surface-variant/50">&rarr; {e.relevance}</p>}
+              {e.content?.slice(0, 120)}{(e.content?.length ?? 0) > 120 ? "…" : ""}
+              {e.relevance && <p className="text-[10px] text-on-surface-variant/40">&rarr; {e.relevance}</p>}
             </li>
           ))}
         </ul>
@@ -132,105 +152,99 @@ function renderStepOutput(nodeName: string, output: Record<string, unknown>) {
   }
 }
 
-// ---- Pipeline trace accordion ----
+// ---- Assistant message with 4 sections ----
 
-function PipelineTrace({ steps, durationMs }: { steps: NonNullable<ChatMetadata["steps"]>; durationMs?: number }) {
-  const [open, setOpen] = useState(false);
-  const totalMs = durationMs ?? steps.reduce((s, t) => s + t.duration_ms, 0);
-
-  return (
-    <div className="flex justify-start">
-      <div className="max-w-[85%] w-full">
-        <button
-          onClick={() => setOpen(!open)}
-          className="flex items-center gap-1.5 text-[11px] text-on-surface-variant/50 hover:text-on-surface-variant transition-colors"
-        >
-          {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-          <Brain className="h-3 w-3" />
-          Pipeline trace ({steps.length} steps &middot; {(totalMs / 1000).toFixed(1)}s)
-        </button>
-        {open && (
-          <div className="mt-2 space-y-2 rounded-xl border border-outline-variant/10 bg-surface-container-lowest/50 p-3">
-            {steps.map((s, i) => (
-              <StepDetail key={i} step={s} />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ---- Render a single assistant response as multiple bubbles ----
-
-function AssistantBubbles({ m }: { m: ChatMessage }) {
+function AssistantMessage({ m }: { m: ChatMessage }) {
   const meta = m.metadata;
 
   if (!meta || (!meta.teaching && !meta.journal && !meta.steps?.length)) {
     return (
-      <AiBubble className="bg-surface-container-high text-on-surface">
-        <div className="whitespace-pre-wrap text-sm">{m.content}</div>
-      </AiBubble>
+      <div className="flex justify-start">
+        <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-surface-container-high px-4 py-3 text-on-surface">
+          <div className="whitespace-pre-wrap text-sm">{m.content}</div>
+        </div>
+      </div>
     );
   }
 
+  const totalMs = meta.pipeline_duration_ms ?? meta.steps?.reduce((s, t) => s + t.duration_ms, 0) ?? 0;
+
   return (
-    <>
-      {/* Bubble 1: Teaching source */}
-      {meta.teaching && (
-        <AiBubble className="bg-primary/5 border border-primary/15">
-          <div className="mb-1 flex items-center gap-1.5 text-xs font-medium text-primary">
-            <BookOpen className="h-3.5 w-3.5" />
-            {meta.teaching.source} {meta.teaching.reference}
-          </div>
-          <p className="text-sm font-medium text-on-surface">{meta.teaching.title}</p>
-          {meta.teaching.content && (
-            <p className="mt-1 text-sm italic text-on-surface-variant">
-              &ldquo;{meta.teaching.content}&rdquo;
-            </p>
-          )}
-          {meta.teaching.application && (
-            <p className="mt-1.5 text-sm text-on-surface-variant">
-              &rarr; {meta.teaching.application}
-            </p>
-          )}
-        </AiBubble>
-      )}
+    <div className="flex justify-start">
+      <div className="max-w-[85%] w-full space-y-2">
+        {/* 1. Teaching verse — title visible, content collapsed */}
+        {meta.teaching && (
+          <Section
+            icon={BookOpen}
+            title={`${meta.teaching.source} ${meta.teaching.reference}`}
+            subtitle={meta.teaching.title}
+            defaultOpen={false}
+            className="border-primary/20 bg-primary/5"
+          >
+            {(meta.teaching.content || meta.teaching.problem) && (
+              <p className="text-sm italic text-on-surface-variant">
+                &ldquo;{meta.teaching.content ?? meta.teaching.problem}&rdquo;
+              </p>
+            )}
+            {(meta.teaching.application || meta.teaching.solution) && (
+              <p className="mt-2 text-sm text-on-surface-variant whitespace-pre-wrap">
+                {meta.teaching.application ?? meta.teaching.solution}
+              </p>
+            )}
+          </Section>
+        )}
 
-      {/* Bubble 2: Main guidance */}
-      <AiBubble className="bg-surface-container-high text-on-surface">
-        <div className="whitespace-pre-wrap text-sm">{m.content}</div>
-      </AiBubble>
-
-      {/* Bubble 3: Journal reflection */}
-      {meta.journal && meta.journal.entries_used?.length > 0 && (
-        <AiBubble className="bg-surface-container border border-outline-variant/15">
-          <div className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-on-surface-variant">
-            <NotebookPen className="h-3.5 w-3.5" />
-            From Your Journal
-          </div>
-          {meta.journal.entries_used.map((e, i) => (
-            <div key={i} className="mt-1 text-sm">
-              <span className="font-medium text-on-surface">{e.date}:</span>{" "}
-              <span className="text-on-surface-variant">{e.snippet}</span>
-              {e.connection && (
-                <p className="mt-0.5 text-xs text-on-surface-variant/70">&rarr; {e.connection}</p>
+        {/* 2. Journal entries — fully collapsed */}
+        {meta.journal && meta.journal.entries_used?.length > 0 && (
+          <Section
+            icon={NotebookPen}
+            title="Journal Entries Used"
+            subtitle={`${meta.journal.entries_used.length} ${meta.journal.entries_used.length === 1 ? "entry" : "entries"}`}
+            defaultOpen={false}
+            className="border-outline-variant/15 bg-surface-container/30"
+          >
+            <div className="space-y-2">
+              {meta.journal.entries_used.map((e, i) => (
+                <div key={i} className="text-sm">
+                  <span className="font-medium text-on-surface">{e.date}:</span>{" "}
+                  <span className="text-on-surface-variant">{e.snippet}</span>
+                  {e.connection && (
+                    <p className="mt-0.5 text-xs text-on-surface-variant/60">&rarr; {e.connection}</p>
+                  )}
+                </div>
+              ))}
+              {meta.journal.reflection && (
+                <p className="text-xs italic text-on-surface-variant/60 pt-1 border-t border-outline-variant/10">
+                  {meta.journal.reflection}
+                </p>
               )}
             </div>
-          ))}
-          {meta.journal.reflection && (
-            <p className="mt-2 text-xs text-on-surface-variant/70 italic">
-              {meta.journal.reflection}
-            </p>
-          )}
-        </AiBubble>
-      )}
+          </Section>
+        )}
 
-      {/* Pipeline trace (not a bubble — sits between messages) */}
-      {meta.steps && meta.steps.length > 0 && (
-        <PipelineTrace steps={meta.steps} durationMs={meta.pipeline_duration_ms} />
-      )}
-    </>
+        {/* 3. Chain of thought — fully collapsed */}
+        {meta.steps && meta.steps.length > 0 && (
+          <Section
+            icon={Brain}
+            title="Chain of Thought"
+            subtitle={`${meta.steps.length} steps · ${(totalMs / 1000).toFixed(1)}s`}
+            defaultOpen={false}
+            className="border-outline-variant/10 bg-surface-container-lowest/30"
+          >
+            <div className="space-y-1">
+              {meta.steps.map((s, i) => (
+                <StepDetail key={i} step={s} />
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {/* 4. Final response — fully expanded */}
+        <div className="rounded-2xl rounded-bl-sm bg-surface-container-high px-4 py-3 text-on-surface">
+          <div className="whitespace-pre-wrap text-sm">{m.content}</div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -292,7 +306,7 @@ export default function ChatPage() {
               </div>
             </div>
           ) : (
-            <AssistantBubbles key={i} m={m} />
+            <AssistantMessage key={i} m={m} />
           )
         )}
         {send.isPending && (
