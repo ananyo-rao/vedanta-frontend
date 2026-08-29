@@ -1,9 +1,10 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import * as chatApi from "@/lib/api/dharma-chat";
-import type { ChatMessage } from "@/lib/api/dharma-chat";
+import type { ChatMessage, StreamStepEvent } from "@/lib/api/dharma-chat";
 
 const chatKeys = {
   history: ["dharma-chat", "history"] as const,
@@ -37,29 +38,52 @@ export function useChatHistory() {
   });
 }
 
-// useSendChat sends a message and keeps the history query cache as the single
-// source of truth: it optimistically appends the user's turn, then appends the
-// assistant's reply on success. No local component state / effects needed.
+// useSendChat sends a message via the streaming endpoint. It progressively
+// shows each pipeline step as it completes so the user sees progress.
 export function useSendChat() {
   const { fetchToken } = useAuthToken();
   const queryClient = useQueryClient();
+  const [isPending, setIsPending] = useState(false);
+  const [liveSteps, setLiveSteps] = useState<StreamStepEvent[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const append = useCallback(
+    (msg: ChatMessage) =>
+      queryClient.setQueryData<ChatMessage[]>(chatKeys.history, (prev = []) => [
+        ...prev,
+        msg,
+      ]),
+    [queryClient]
+  );
 
-  const append = (msg: ChatMessage) =>
-    queryClient.setQueryData<ChatMessage[]>(chatKeys.history, (prev = []) => [
-      ...prev,
-      msg,
-    ]);
+  const send = useCallback(
+    async (message: string) => {
+      setError(null);
+      setIsPending(true);
+      setLiveSteps([]);
 
-  return useMutation({
-    mutationFn: async (message: string) =>
-      chatApi.sendChat(await fetchToken(), message),
-    onMutate: (message: string) => {
+      // Optimistically append the user message.
       append({ role: "user", content: message });
+
+      try {
+        const token = await fetchToken();
+        const reply = await chatApi.streamChat(token, message, (event) => {
+          if (event.type === "step") {
+            setLiveSteps((prev) => [...prev, event.data]);
+          }
+        });
+        // Stream done — append the final assistant message and clear live steps.
+        append(reply);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to send message");
+      } finally {
+        setIsPending(false);
+        setLiveSteps([]);
+      }
     },
-    onSuccess: (reply) => {
-      append(reply);
-    },
-  });
+    [append, fetchToken]
+  );
+
+  return { send, isPending, liveSteps, error };
 }
 
 // ---- Guide chat: user messages are stored; a human guide replies later, so we

@@ -13,9 +13,10 @@ import {
   Search,
   MessageSquare,
   Lightbulb,
+  Check,
 } from "lucide-react";
 import { useChatHistory, useSendChat } from "@/hooks/use-chat";
-import type { ChatMessage, ChatMetadata } from "@/lib/api/dharma-chat";
+import type { ChatMessage, ChatMetadata, StreamStepEvent } from "@/lib/api/dharma-chat";
 
 // ---- Collapsible section ----
 
@@ -152,6 +153,58 @@ function renderStepOutput(nodeName: string, output: Record<string, unknown>) {
   }
 }
 
+// ---- Live progress indicator shown while the pipeline runs ----
+
+const PIPELINE_ORDER = [
+  "chat_context_analyzer",
+  "chat_teaching_retriever",
+  "chat_journal_selector",
+  "chat_response_composer",
+];
+
+function LiveProgress({ completedSteps }: { completedSteps: StreamStepEvent[] }) {
+  const doneNames = new Set(completedSteps.map((s) => s.node_name));
+
+  // Find the currently running step (first not-done in order).
+  let activeIdx = PIPELINE_ORDER.findIndex((name) => !doneNames.has(name));
+  if (activeIdx === -1) activeIdx = PIPELINE_ORDER.length;
+
+  return (
+    <div className="flex justify-start">
+      <div className="max-w-[85%] w-full rounded-2xl rounded-bl-sm bg-surface-container-high px-4 py-3 space-y-1.5">
+        {PIPELINE_ORDER.map((name, i) => {
+          const meta = STEP_META[name];
+          const Icon = meta?.icon ?? Lightbulb;
+          const isDone = doneNames.has(name);
+          const isActive = i === activeIdx;
+          const completedStep = completedSteps.find((s) => s.node_name === name);
+
+          return (
+            <div key={name} className="flex items-center gap-2">
+              {isDone ? (
+                <Check className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+              ) : isActive ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-primary flex-shrink-0" />
+              ) : (
+                <div className="h-3.5 w-3.5 rounded-full border border-outline-variant/30 flex-shrink-0" />
+              )}
+              <Icon className={`h-3.5 w-3.5 flex-shrink-0 ${isDone ? "text-primary/70" : isActive ? "text-primary/70" : "text-on-surface-variant/30"}`} />
+              <span className={`text-xs ${isDone ? "text-on-surface-variant" : isActive ? "text-on-surface font-medium" : "text-on-surface-variant/40"}`}>
+                {isActive ? meta?.verb ?? meta?.label : meta?.label}
+              </span>
+              {isDone && completedStep && (
+                <span className="text-[10px] text-on-surface-variant/40 ml-auto">
+                  {(completedStep.duration_ms / 1000).toFixed(1)}s
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ---- Assistant message with 4 sections ----
 
 function AssistantMessage({ m }: { m: ChatMessage }) {
@@ -252,25 +305,20 @@ function AssistantMessage({ m }: { m: ChatMessage }) {
 
 export default function ChatPage() {
   const { data: messages = [], isLoading } = useChatHistory();
-  const send = useSendChat();
+  const { send, isPending, liveSteps, error } = useSendChat();
 
   const [input, setInput] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, send.isPending]);
+  }, [messages, isPending, liveSteps]);
 
   const handleSend = () => {
     const text = input.trim();
-    if (!text || send.isPending) return;
-    setError(null);
+    if (!text || isPending) return;
     setInput("");
-    send.mutate(text, {
-      onError: (e) =>
-        setError(e instanceof Error ? e.message : "Failed to send message"),
-    });
+    send(text);
   };
 
   return (
@@ -292,7 +340,7 @@ export default function ChatPage() {
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
           </div>
         )}
-        {!isLoading && messages.length === 0 && (
+        {!isLoading && messages.length === 0 && !isPending && (
           <div className="flex h-full flex-col items-center justify-center text-center text-on-surface-variant">
             <Sparkles className="mb-2 h-8 w-8 opacity-40" />
             <p className="text-sm">Start the conversation — ask anything.</p>
@@ -309,13 +357,7 @@ export default function ChatPage() {
             <AssistantMessage key={i} m={m} />
           )
         )}
-        {send.isPending && (
-          <div className="flex justify-start">
-            <div className="rounded-2xl rounded-bl-sm bg-surface-container-high px-4 py-2.5">
-              <Loader2 className="h-4 w-4 animate-spin text-on-surface-variant" />
-            </div>
-          </div>
-        )}
+        {isPending && <LiveProgress completedSteps={liveSteps} />}
         <div ref={bottomRef} />
       </div>
 
@@ -338,7 +380,7 @@ export default function ChatPage() {
         />
         <button
           onClick={handleSend}
-          disabled={!input.trim() || send.isPending}
+          disabled={!input.trim() || isPending}
           aria-label="Send message"
           className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary text-white transition-opacity hover:opacity-90 disabled:opacity-40"
         >

@@ -49,6 +49,82 @@ export async function sendChat(
   return res.data as ChatMessage;
 }
 
+export type StreamStepEvent = {
+  node_name: string;
+  duration_ms: number;
+  model: string;
+  summary?: string;
+  output?: Record<string, unknown>;
+  error?: string;
+};
+
+export type StreamEvent =
+  | { type: "step"; data: StreamStepEvent }
+  | { type: "done"; data: ChatMessage }
+  | { type: "error"; data: ChatMessage };
+
+// streamChat sends a message via the streaming endpoint. The onEvent callback
+// fires for each SSE event so the UI can show progressive results.
+export async function streamChat(
+  token: string,
+  message: string,
+  onEvent: (event: StreamEvent) => void
+): Promise<ChatMessage> {
+  const res = await fetch(`${DHARMA_API_URL}/chat/stream`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ message }),
+  });
+
+  if (!res.ok) {
+    throw new Error(
+      res.status >= 500
+        ? "Something went wrong. Please try again later."
+        : "Request failed. Please try again."
+    );
+  }
+
+  const reader = res.body?.getReader();
+  if (!reader) throw new Error("No response body");
+
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let finalMessage: ChatMessage | null = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+
+    let currentEvent = "";
+    for (const line of lines) {
+      if (line.startsWith("event: ")) {
+        currentEvent = line.slice(7).trim();
+      } else if (line.startsWith("data: ") && currentEvent) {
+        try {
+          const data = JSON.parse(line.slice(6));
+          const event = { type: currentEvent, data } as StreamEvent;
+          onEvent(event);
+          if (currentEvent === "done" || currentEvent === "error") {
+            finalMessage = data as ChatMessage;
+          }
+        } catch {
+          // skip malformed JSON
+        }
+        currentEvent = "";
+      }
+    }
+  }
+
+  return finalMessage ?? { role: "assistant", content: "" };
+}
+
 // getChatHistory returns the signed-in user's full conversation (oldest first).
 export async function getChatHistory(token: string): Promise<ChatMessage[]> {
   const res = await fetchWithAuth(`${DHARMA_API_URL}/chat/history`, token);
