@@ -1,13 +1,13 @@
 "use client";
 
-import { Layers, Sparkles, Compass, NotebookPen } from "lucide-react";
+import { Layers, Sparkles, UserRound, NotebookPen } from "lucide-react";
 import type { TimelineFilter } from "@/lib/api/dharma-chat";
 
 const FILTERS: { key: TimelineFilter; label: string; icon: typeof Layers }[] = [
   { key: "all", label: "All", icon: Layers },
-  { key: "ai", label: "AI", icon: Sparkles },
-  { key: "guide", label: "Guide", icon: Compass },
   { key: "journal", label: "Journal", icon: NotebookPen },
+  { key: "guide", label: "Guide", icon: UserRound },
+  { key: "ai", label: "AI", icon: Sparkles },
 ];
 
 export function FilterChips({

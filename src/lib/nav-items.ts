@@ -1,4 +1,4 @@
-import { BookOpen, User, Hammer, Code2, Compass, Flame, type LucideIcon } from "lucide-react";
+import { Video, User, Hammer, Code2, NotebookPen, Flame, type LucideIcon } from "lucide-react";
 import type { Role } from "@/lib/clerk";
 
 // The Dharma Sadhana developer portal (a separate app). Admins get a link to it
@@ -41,28 +41,28 @@ export const sidebarNavItems: NavItem[] = [
     external: true,
   },
   {
-    icon: BookOpen,
-    label: "Courses",
+    icon: Video,
+    label: "Live Sessions",
     href: "/app/dashboard",
-    category: "LEARN",
+    category: "SHRAVANAM",
   },
   {
-    icon: Compass,
+    icon: NotebookPen,
     label: "My Journey",
     href: "/app/journey",
-    category: "LEARN",
+    category: "MANANAM",
   },
   {
     icon: Flame,
-    label: "Tapas",
+    label: "Habits",
     href: "/app/tapas",
-    category: "PRACTICE",
+    category: "NIDHIYAASANAM",
   },
 ];
 
 export const bottomTabItems: BottomTabItem[] = [
-  { icon: BookOpen, label: "Courses", href: "/app/dashboard" },
-  { icon: Compass, label: "Journey", href: "/app/journey" },
+  { icon: Video, label: "Sessions", href: "/app/dashboard" },
+  { icon: NotebookPen, label: "Journey", href: "/app/journey" },
   { icon: Hammer, label: "Builder", href: "/app/admin/course-builder", requiredRole: "admin" },
   { icon: User, label: "Profile", href: "/app/profile" },
 ];

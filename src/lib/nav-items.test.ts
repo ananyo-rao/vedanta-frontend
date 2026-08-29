@@ -7,16 +7,14 @@ import {
 
 describe("nav-items", () => {
   describe("sidebarNavItems", () => {
-    it("has BUILD items (Course Builder, Developer Portal) then LEARN items", () => {
-      expect(sidebarNavItems).toHaveLength(7);
+    it("has BUILD items then SHRAVANAM, MANANAM, NIDHIYAASANAM items", () => {
+      expect(sidebarNavItems).toHaveLength(5);
       expect(sidebarNavItems.map((i) => i.label)).toEqual([
         "Course Builder",
         "Developer Portal",
-        "Courses",
-        "AI Chat",
-        "Guide Chat",
-        "Journal",
-        "Tapas",
+        "Live Sessions",
+        "My Journey",
+        "Habits",
       ]);
     });
 
@@ -35,20 +33,20 @@ describe("nav-items", () => {
       expect(builder?.category).toBe("BUILD");
     });
 
-    it("LEARN items have no requiredRole", () => {
-      const learnItems = sidebarNavItems.filter(
-        (i) => i.category === "LEARN"
+    it("non-admin items have no requiredRole", () => {
+      const nonAdmin = sidebarNavItems.filter(
+        (i) => i.category !== "BUILD"
       );
-      learnItems.forEach((item) => {
+      nonAdmin.forEach((item) => {
         expect(item.requiredRole).toBeUndefined();
       });
     });
 
-    it("has AI Chat, Guide Chat, and Journal in LEARN", () => {
-      const learn = sidebarNavItems
-        .filter((i) => i.category === "LEARN")
+    it("has My Journey in MANANAM", () => {
+      const mananam = sidebarNavItems
+        .filter((i) => i.category === "MANANAM")
         .map((i) => i.label);
-      expect(learn).toEqual(["Courses", "AI Chat", "Guide Chat", "Journal"]);
+      expect(mananam).toEqual(["My Journey"]);
     });
 
     it("internal items have /app/ prefix in href", () => {
@@ -61,11 +59,11 @@ describe("nav-items", () => {
   });
 
   describe("bottomTabItems", () => {
-    it("has 4 tabs: Courses, AI Chat, Builder, Profile", () => {
+    it("has 4 tabs: Sessions, Journey, Builder, Profile", () => {
       expect(bottomTabItems).toHaveLength(4);
       expect(bottomTabItems.map((t) => t.label)).toEqual([
-        "Courses",
-        "AI Chat",
+        "Sessions",
+        "Journey",
         "Builder",
         "Profile",
       ]);

@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Send, NotebookPen, Sparkles, Compass } from "lucide-react";
+import { Send, NotebookPen, Sparkles, UserRound } from "lucide-react";
 
 export type InputMode = "journal" | "ai" | "guide";
 
 const MODES: { key: InputMode; label: string; icon: typeof NotebookPen; hint: string; placeholder: string }[] = [
-  { key: "journal", label: "Life Notes", icon: NotebookPen, hint: "Saving as journal entry", placeholder: "Write a journal entry…" },
+  { key: "journal", label: "Journaling", icon: NotebookPen, hint: "Saving as journal entry", placeholder: "Write a journal entry…" },
   { key: "ai", label: "AI", icon: Sparkles, hint: "Asking AI", placeholder: "Ask a question…" },
-  { key: "guide", label: "Guide", icon: Compass, hint: "Messaging your guide", placeholder: "Message your guide…" },
+  { key: "guide", label: "Guide", icon: UserRound, hint: "Messaging your guide", placeholder: "Message your guide…" },
 ];
 
 export function SegmentedInput({
