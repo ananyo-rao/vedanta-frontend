@@ -94,6 +94,28 @@ export async function streamChat(
   let buffer = "";
   let finalMessage: ChatMessage | null = null;
 
+  // SSE events arrive as "event: <type>\ndata: <json>\n\n". Large JSON
+  // payloads can arrive split across multiple read() chunks, so we
+  // accumulate complete events before parsing.
+  let pendingEvent = "";
+  let pendingData = "";
+
+  const processEvent = () => {
+    if (!pendingEvent || !pendingData) return;
+    try {
+      const data = JSON.parse(pendingData);
+      const event = { type: pendingEvent, data } as StreamEvent;
+      onEvent(event);
+      if (pendingEvent === "done" || pendingEvent === "error") {
+        finalMessage = data as ChatMessage;
+      }
+    } catch {
+      // skip malformed JSON
+    }
+    pendingEvent = "";
+    pendingData = "";
+  };
+
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
@@ -102,25 +124,20 @@ export async function streamChat(
     const lines = buffer.split("\n");
     buffer = lines.pop() ?? "";
 
-    let currentEvent = "";
     for (const line of lines) {
       if (line.startsWith("event: ")) {
-        currentEvent = line.slice(7).trim();
-      } else if (line.startsWith("data: ") && currentEvent) {
-        try {
-          const data = JSON.parse(line.slice(6));
-          const event = { type: currentEvent, data } as StreamEvent;
-          onEvent(event);
-          if (currentEvent === "done" || currentEvent === "error") {
-            finalMessage = data as ChatMessage;
-          }
-        } catch {
-          // skip malformed JSON
-        }
-        currentEvent = "";
+        processEvent();
+        pendingEvent = line.slice(7).trim();
+        pendingData = "";
+      } else if (line.startsWith("data: ")) {
+        pendingData += (pendingData ? "\n" : "") + line.slice(6);
+      } else if (line === "") {
+        processEvent();
       }
     }
   }
+  // Flush any remaining event.
+  processEvent();
 
   return finalMessage ?? { role: "assistant", content: "" };
 }
