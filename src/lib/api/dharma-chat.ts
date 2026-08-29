@@ -9,6 +9,23 @@ export interface ChatMessage {
   role: "user" | "assistant" | "guide";
   content: string;
   created_at?: string;
+  metadata?: ChatMetadata | null;
+}
+
+export interface ChatMetadata {
+  teaching?: {
+    title: string;
+    source: string;
+    reference: string;
+    content: string;
+    application: string;
+  } | null;
+  journal?: {
+    entries_used: { date: string; snippet: string; connection: string }[];
+    reflection: string;
+  } | null;
+  steps?: { node_name: string; duration_ms: number; model: string; summary?: string }[];
+  pipeline_duration_ms?: number;
 }
 
 // sendChat posts a message and returns the assistant's reply. The Dharma backend

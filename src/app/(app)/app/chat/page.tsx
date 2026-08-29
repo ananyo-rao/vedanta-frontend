@@ -1,12 +1,99 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, Sparkles, Loader2 } from "lucide-react";
+import { Send, Sparkles, Loader2, ChevronRight, ChevronDown, BookOpen, NotebookPen } from "lucide-react";
 import { useChatHistory, useSendChat } from "@/hooks/use-chat";
+import type { ChatMessage, ChatMetadata } from "@/lib/api/dharma-chat";
+
+function TeachingCard({ teaching }: { teaching: NonNullable<ChatMetadata["teaching"]> }) {
+  return (
+    <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+      <div className="mb-1 flex items-center gap-1.5 text-xs font-medium text-primary">
+        <BookOpen className="h-3.5 w-3.5" />
+        {teaching.source} {teaching.reference}
+      </div>
+      <p className="text-sm font-medium text-on-surface">{teaching.title}</p>
+      {teaching.content && (
+        <p className="mt-1 text-sm italic text-on-surface-variant">&ldquo;{teaching.content}&rdquo;</p>
+      )}
+      {teaching.application && (
+        <p className="mt-1.5 text-sm text-on-surface-variant">{teaching.application}</p>
+      )}
+    </div>
+  );
+}
+
+function JournalCard({ journal }: { journal: NonNullable<ChatMetadata["journal"]> }) {
+  return (
+    <div className="rounded-lg border border-outline-variant/20 bg-surface-container p-3">
+      <div className="mb-1 flex items-center gap-1.5 text-xs font-medium text-on-surface-variant">
+        <NotebookPen className="h-3.5 w-3.5" />
+        From Your Journal
+      </div>
+      {journal.entries_used?.map((e, i) => (
+        <div key={i} className="mt-1.5 text-sm">
+          <span className="font-medium text-on-surface">{e.date}:</span>{" "}
+          <span className="text-on-surface-variant">{e.snippet}</span>
+          {e.connection && (
+            <p className="mt-0.5 text-xs text-on-surface-variant/70">&rarr; {e.connection}</p>
+          )}
+        </div>
+      ))}
+      {journal.reflection && (
+        <p className="mt-2 text-xs text-on-surface-variant/70">{journal.reflection}</p>
+      )}
+    </div>
+  );
+}
+
+function StepsAccordion({ steps, durationMs }: { steps: NonNullable<ChatMetadata["steps"]>; durationMs?: number }) {
+  const [open, setOpen] = useState(false);
+  const totalMs = durationMs ?? steps.reduce((s, t) => s + t.duration_ms, 0);
+
+  return (
+    <div className="mt-2">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1 text-xs text-on-surface-variant/60 hover:text-on-surface-variant transition-colors"
+      >
+        {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+        How I reached this conclusion ({steps.length} steps &middot; {(totalMs / 1000).toFixed(1)}s)
+      </button>
+      {open && (
+        <ol className="mt-1.5 space-y-1 pl-4 text-xs text-on-surface-variant/70">
+          {steps.map((s, i) => (
+            <li key={i}>
+              <span className="font-medium text-on-surface-variant">{s.node_name.replace(/^chat_/, "").replace(/_/g, " ")}</span>
+              <span className="ml-1">({s.model}, {s.duration_ms}ms)</span>
+              {s.summary && <span className="ml-1">&mdash; {s.summary}</span>}
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+}
+
+function AssistantMessage({ m }: { m: ChatMessage }) {
+  const meta = m.metadata;
+
+  if (!meta || (!meta.teaching && !meta.journal && !meta.steps?.length)) {
+    return <div className="whitespace-pre-wrap text-sm">{m.content}</div>;
+  }
+
+  return (
+    <div className="space-y-2.5">
+      {meta.teaching && <TeachingCard teaching={meta.teaching} />}
+      {meta.journal && meta.journal.entries_used?.length > 0 && <JournalCard journal={meta.journal} />}
+      <div className="whitespace-pre-wrap text-sm">{m.content}</div>
+      {meta.steps && meta.steps.length > 0 && (
+        <StepsAccordion steps={meta.steps} durationMs={meta.pipeline_duration_ms} />
+      )}
+    </div>
+  );
+}
 
 export default function ChatPage() {
-  // The history query cache is the single source of truth; useSendChat appends
-  // the user turn and the assistant reply to it optimistically.
   const { data: messages = [], isLoading } = useChatHistory();
   const send = useSendChat();
 
@@ -60,13 +147,13 @@ export default function ChatPage() {
             className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[80%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm ${
+              className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                 m.role === "user"
-                  ? "rounded-br-sm bg-primary text-white"
+                  ? "rounded-br-sm bg-primary text-white text-sm whitespace-pre-wrap"
                   : "rounded-bl-sm bg-surface-container-high text-on-surface"
               }`}
             >
-              {m.content}
+              {m.role === "user" ? m.content : <AssistantMessage m={m} />}
             </div>
           </div>
         ))}
