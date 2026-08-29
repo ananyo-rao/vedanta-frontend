@@ -8,7 +8,7 @@ import {
 describe("nav-items", () => {
   describe("sidebarNavItems", () => {
     it("has BUILD items (Course Builder, Developer Portal) then LEARN items", () => {
-      expect(sidebarNavItems).toHaveLength(6);
+      expect(sidebarNavItems).toHaveLength(7);
       expect(sidebarNavItems.map((i) => i.label)).toEqual([
         "Course Builder",
         "Developer Portal",
@@ -16,6 +16,7 @@ describe("nav-items", () => {
         "AI Chat",
         "Guide Chat",
         "Journal",
+        "Tapas",
       ]);
     });
 
