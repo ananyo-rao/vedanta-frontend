@@ -48,7 +48,11 @@ export function TimelineView({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [entries.length, isStreaming, liveSteps]);
 
-  let lastDate = "";
+  const dated = entries.map((e, i, arr) => {
+    const eDate = dateSeparator(e.timestamp);
+    const prev = i > 0 ? dateSeparator(arr[i - 1].timestamp) : "";
+    return { entry: e, showSep: eDate !== prev, dateLabel: eDate };
+  });
 
   return (
     <div className="flex-1 space-y-3 overflow-y-auto rounded-xl border border-outline-variant/10 bg-surface-container-low p-4">
@@ -64,17 +68,13 @@ export function TimelineView({
         </div>
       )}
 
-      {entries.map((e) => {
-        const eDate = dateSeparator(e.timestamp);
-        const showSep = eDate !== lastDate;
-        lastDate = eDate;
-        return (
+      {dated.map(({ entry: e, showSep, dateLabel }) => (
           <div key={e.id}>
             {showSep && (
               <div className="flex items-center gap-3 py-2">
                 <div className="h-px flex-1 bg-outline-variant/15" />
                 <span className="text-[10px] font-medium uppercase tracking-wider text-on-surface-variant/50">
-                  {eDate}
+                  {dateLabel}
                 </span>
                 <div className="h-px flex-1 bg-outline-variant/15" />
               </div>
@@ -85,8 +85,7 @@ export function TimelineView({
               onDeleteJournal={onDeleteJournal}
             />
           </div>
-        );
-      })}
+      ))}
 
       {isStreaming && <LiveProgress completedSteps={liveSteps} />}
       <div ref={bottomRef} />

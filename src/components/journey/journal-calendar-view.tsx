@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Pencil, Trash2, Check, X, Feather, ChevronLeft, ChevronRight } from "lucide-react";
+import { Pencil, Trash2, Check, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useJournal, useUpdateJournal, useDeleteJournal } from "@/hooks/use-chat";
 import { MiniCalendar, keyOfDate, keyOfISO, startOfDay, timeOf } from "./mini-calendar";
 import type { JournalEntry } from "@/lib/api/dharma-chat";
