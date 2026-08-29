@@ -24,7 +24,13 @@ export interface ChatMetadata {
     entries_used: { date: string; snippet: string; connection: string }[];
     reflection: string;
   } | null;
-  steps?: { node_name: string; duration_ms: number; model: string; summary?: string }[];
+  steps?: {
+    node_name: string;
+    duration_ms: number;
+    model: string;
+    summary?: string;
+    output?: Record<string, unknown>;
+  }[];
   pipeline_duration_ms?: number;
 }
 
