@@ -209,3 +209,29 @@ export async function getJournal(token: string): Promise<JournalEntry[]> {
   const res = await fetchWithAuth(`${DHARMA_API_URL}/journal`, token);
   return (res.data as JournalEntry[]) ?? [];
 }
+
+// ---- Unified timeline ----
+
+export interface TimelineEntry {
+  id: string;
+  type:
+    | "journal"
+    | "ai_user"
+    | "ai_assistant"
+    | "guide_user"
+    | "guide_reply";
+  content: string;
+  timestamp: string;
+  metadata?: ChatMetadata | null;
+}
+
+export type TimelineFilter = "all" | "ai" | "guide" | "journal";
+
+export async function getTimeline(
+  token: string,
+  filter?: TimelineFilter
+): Promise<TimelineEntry[]> {
+  const qs = filter && filter !== "all" ? `?filter=${filter}` : "";
+  const res = await fetchWithAuth(`${DHARMA_API_URL}/timeline${qs}`, token);
+  return (res.data as TimelineEntry[]) ?? [];
+}

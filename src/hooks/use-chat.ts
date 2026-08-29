@@ -4,12 +4,14 @@ import { useCallback, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import * as chatApi from "@/lib/api/dharma-chat";
-import type { ChatMessage, StreamStepEvent } from "@/lib/api/dharma-chat";
+import type { ChatMessage, StreamStepEvent, TimelineFilter } from "@/lib/api/dharma-chat";
 
 const chatKeys = {
   history: ["dharma-chat", "history"] as const,
   guide: ["dharma-chat", "guide"] as const,
   journal: ["dharma-chat", "journal"] as const,
+  timeline: (f: string) => ["dharma-chat", "timeline", f] as const,
+  timelinePrefix: ["dharma-chat", "timeline"] as const,
 };
 
 function useAuthToken() {
@@ -35,6 +37,18 @@ export function useChatHistory() {
     queryFn: async () => chatApi.getChatHistory(await fetchToken()),
     enabled: ready,
     retry: 1,
+  });
+}
+
+// useTimeline loads the unified timeline (all channels + journal).
+export function useTimeline(filter: TimelineFilter = "all") {
+  const { fetchToken, ready } = useAuthToken();
+  return useQuery({
+    queryKey: chatKeys.timeline(filter),
+    queryFn: async () => chatApi.getTimeline(await fetchToken(), filter),
+    enabled: ready,
+    retry: 1,
+    refetchInterval: filter === "all" || filter === "guide" ? 15000 : undefined,
   });
 }
 
@@ -73,6 +87,7 @@ export function useSendChat() {
         });
         // Stream done — append the final assistant message and clear live steps.
         append(reply);
+        queryClient.invalidateQueries({ queryKey: chatKeys.timelinePrefix });
       } catch (e) {
         setError(e instanceof Error ? e.message : "Failed to send message");
       } finally {
@@ -111,6 +126,9 @@ export function useSendGuide() {
         { role: "user", content: message },
       ]);
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.timelinePrefix });
+    },
   });
 }
 
@@ -133,6 +151,7 @@ export function useAddJournal() {
       chatApi.addJournal(await fetchToken(), vars.content, vars.loggedAt),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: chatKeys.journal });
+      queryClient.invalidateQueries({ queryKey: chatKeys.timelinePrefix });
     },
   });
 }
@@ -145,6 +164,7 @@ export function useUpdateJournal() {
       chatApi.updateJournal(await fetchToken(), vars.id, vars.content, vars.loggedAt),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: chatKeys.journal });
+      queryClient.invalidateQueries({ queryKey: chatKeys.timelinePrefix });
     },
   });
 }
@@ -156,6 +176,7 @@ export function useDeleteJournal() {
     mutationFn: async (id: string) => chatApi.deleteJournal(await fetchToken(), id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: chatKeys.journal });
+      queryClient.invalidateQueries({ queryKey: chatKeys.timelinePrefix });
     },
   });
 }
