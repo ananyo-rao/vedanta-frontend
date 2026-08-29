@@ -15,12 +15,12 @@ export default clerkMiddleware(async (auth, request) => {
 
   // Redirect authenticated users from homepage to app
   if (pathname === "/" && userId) {
-    return NextResponse.redirect(new URL("/app/dashboard", request.url));
+    return NextResponse.redirect(new URL("/app/journey", request.url));
   }
 
-  // Redirect old /dashboard to new /app/dashboard
+  // Redirect old /dashboard to new /app/journey
   if (pathname === "/dashboard" && userId) {
-    return NextResponse.redirect(new URL("/app/dashboard", request.url));
+    return NextResponse.redirect(new URL("/app/journey", request.url));
   }
 
   // Redirect non-admins from admin routes to dashboard
@@ -28,7 +28,7 @@ export default clerkMiddleware(async (auth, request) => {
     const metadata = sessionClaims?.metadata as Record<string, unknown> | undefined;
     const role = metadata?.role;
     if (role !== "admin") {
-      return NextResponse.redirect(new URL("/app/dashboard", request.url));
+      return NextResponse.redirect(new URL("/app/journey", request.url));
     }
   }
 
