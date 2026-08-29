@@ -24,7 +24,7 @@ const FILTER_TO_MODE: Record<string, InputMode> = {
 
 export default function JourneyPage() {
   const params = useSearchParams();
-  const initialFilter = (params.get("filter") as TimelineFilter) || "all";
+  const initialFilter = (params.get("filter") as TimelineFilter) || "journal";
 
   const [filter, setFilter] = useState<TimelineFilter>(initialFilter);
   const [inputMode, setInputMode] = useState<InputMode>(
