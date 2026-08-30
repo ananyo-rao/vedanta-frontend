@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ElementBadge } from "@/components/yoga-courses/element-badge";
@@ -12,11 +12,13 @@ import {
   useCreateYogaProfile,
   useRecommendedCourses,
 } from "@/hooks/use-yoga";
+import { syncUser } from "@/lib/api/yoga-student";
 import type { CreateYogaProfileInput, YogaCourse } from "@/types/yoga";
 
 export function RecommendationsStep() {
   const router = useRouter();
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn, getToken } = useAuth();
+  const { user } = useUser();
   const reset = useOnboardingStore((s) => s.reset);
   const personalDetails = useOnboardingStore((s) => s.personalDetails);
   const aboutYou = useOnboardingStore((s) => s.aboutYou);
@@ -44,23 +46,32 @@ export function RecommendationsStep() {
     years_of_practice: vedantaGoals.years_of_practice,
   });
 
+  const submitProfile = async () => {
+    const token = await getToken();
+    if (!token) throw new Error("Not authenticated");
+    const email = user?.emailAddresses?.[0]?.emailAddress || "";
+    const name = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
+    if (email) {
+      await syncUser(token, email, name);
+    }
+    await createProfile.mutateAsync(buildInput());
+  };
+
   useEffect(() => {
-    if (!isLoaded || !isSignedIn || submitted.current) return;
+    if (!isLoaded || !isSignedIn || !user || submitted.current) return;
     submitted.current = true;
 
-    createProfile
-      .mutateAsync(buildInput())
+    submitProfile()
       .then(() => setProfileReady(true))
       .catch((err) => {
         console.error("Profile creation failed:", err);
         setError("Something went wrong saving your profile. Please try again.");
       });
-  }, [isLoaded, isSignedIn]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isLoaded, isSignedIn, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRetry = () => {
     setError(null);
-    createProfile
-      .mutateAsync(buildInput())
+    submitProfile()
       .then(() => setProfileReady(true))
       .catch((err) => {
         console.error("Profile creation failed:", err);
