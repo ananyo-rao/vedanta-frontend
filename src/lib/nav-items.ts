@@ -54,7 +54,7 @@ export const sidebarNavItems: NavItem[] = [
   },
   {
     icon: Flame,
-    label: "Habits",
+    label: "Tapas",
     href: "/app/tapas",
     category: "NIDHIYAASANAM",
   },
