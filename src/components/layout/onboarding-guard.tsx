@@ -22,8 +22,13 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
     const name = [user.firstName, user.lastName].filter(Boolean).join(" ");
 
     getToken()
-      .then((token) => {
+      .then(async (token) => {
         if (!token || !email) return;
+        if (token.split(".").length !== 3) {
+          console.warn("[auth] malformed token in syncUser, retrying");
+          token = await getToken({ skipCache: true });
+          if (!token || token.split(".").length !== 3) return;
+        }
         return syncUser(token, email, name);
       })
       .then(() => refetch())

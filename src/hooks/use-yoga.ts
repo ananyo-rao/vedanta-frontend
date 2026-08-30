@@ -10,13 +10,27 @@ import type {
   FeedbackAnswer,
 } from "@/types/yoga";
 
+function isValidJwt(token: string): boolean {
+  return token.split(".").length === 3;
+}
+
 function useAuthToken() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const ready = isLoaded && !!isSignedIn;
 
   const fetchToken = async () => {
-    const token = await getToken();
+    let token = await getToken();
     if (!token) throw new Error("Not authenticated");
+
+    if (!isValidJwt(token)) {
+      // ponytail: stale/corrupt cache — one retry with skipCache
+      console.warn("[auth] malformed token, retrying with skipCache");
+      token = await getToken({ skipCache: true });
+      if (!token || !isValidJwt(token)) {
+        throw new Error("Authentication token is invalid. Please sign out and sign back in.");
+      }
+    }
+
     return token;
   };
 
