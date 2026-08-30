@@ -58,9 +58,9 @@ export function JournalCalendarView() {
   });
 
   return (
-    <div className="flex flex-1 gap-4 overflow-hidden">
-      {/* Calendar sidebar */}
-      <div className="w-56 shrink-0 rounded-xl border border-outline-variant/10 bg-surface-container-low p-3">
+    <div className="flex flex-1 flex-col gap-4 overflow-hidden md:flex-row">
+      {/* Calendar */}
+      <div className="shrink-0 rounded-xl border border-outline-variant/10 bg-surface-container-low p-3 md:w-56">
         <MiniCalendar
           month={month}
           setMonth={setMonth}
@@ -71,7 +71,7 @@ export function JournalCalendarView() {
       </div>
 
       {/* Day detail */}
-      <div className="flex-1 overflow-y-auto rounded-xl border border-[#e7dcc5] bg-[#faf6ee] p-5">
+      <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-[#e7dcc5] bg-[#faf6ee] p-5">
         <div className="mb-4 text-center">
           <h2 className="font-serif text-xl text-[#4a3f35]">{headline}</h2>
           <div className="mx-auto mt-1.5 h-px w-16 bg-[#c9a24a]" />

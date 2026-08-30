@@ -67,8 +67,8 @@ export function SegmentedInput({
             }
           }}
           placeholder={current.placeholder}
-          rows={4}
-          className="min-h-[100px] flex-1 resize-y rounded-lg border border-outline-variant/20 bg-surface-container-low px-3 py-2.5 text-sm text-on-surface outline-none focus:border-primary/50"
+          rows={2}
+          className="min-h-[56px] flex-1 resize-y rounded-lg border border-outline-variant/20 bg-surface-container-low px-3 py-2.5 text-sm text-on-surface outline-none focus:border-primary/50 md:min-h-[100px]"
         />
         <button
           onClick={handleSend}
