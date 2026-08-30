@@ -14,7 +14,7 @@ describe("nav-items", () => {
         "Developer Portal",
         "Live Sessions",
         "My Journey",
-        "Habits",
+        "Tapas",
       ]);
     });
 
