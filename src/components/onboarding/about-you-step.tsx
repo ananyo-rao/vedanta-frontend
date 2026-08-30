@@ -37,10 +37,10 @@ export function AboutYouStep() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="work-feeling">How do you feel about your work?</Label>
+          <Label htmlFor="work-feeling">How do you feel about your daily activities?</Label>
           <Textarea
             id="work-feeling"
-            placeholder="e.g. I enjoy it but feel stressed, I'm looking for more meaning..."
+            placeholder="e.g. I stay busy but feel restless, I want more clarity in how I spend my time..."
             rows={2}
             value={aboutYou.work_feeling}
             onChange={(e) =>
@@ -51,11 +51,11 @@ export function AboutYouStep() {
 
         <div className="space-y-2">
           <Label htmlFor="ideal-work">
-            What would you call ideal work?
+            What would your ideal daily life look like?
           </Label>
           <Textarea
             id="ideal-work"
-            placeholder="e.g. Work that feels meaningful, serves others, gives inner peace..."
+            placeholder="e.g. A life with purpose, inner peace, time for study and reflection..."
             rows={2}
             value={aboutYou.ideal_work}
             onChange={(e) =>

@@ -28,12 +28,12 @@ export function RecommendationsStep() {
 
   const submitted = useRef(false);
   const [profileReady, setProfileReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const submitProfile = () => {
     if (!isLoaded || !isSignedIn) return;
-    if (submitted.current) return;
-    submitted.current = true;
 
+    setError(null);
     const input: CreateYogaProfileInput = {
       phone_number: personalDetails.phone_number || undefined,
       date_of_birth: personalDetails.date_of_birth || undefined,
@@ -51,7 +51,17 @@ export function RecommendationsStep() {
     createProfile
       .mutateAsync(input)
       .then(() => setProfileReady(true))
-      .catch(() => setProfileReady(true)); // profile may already exist — treat as success
+      .catch((err) => {
+        console.error("Profile creation failed:", err);
+        setError("Something went wrong saving your profile. Please try again.");
+        setProfileReady(false);
+      });
+  };
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || submitted.current) return;
+    submitted.current = true;
+    submitProfile();
   }, [isLoaded, isSignedIn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleFinish = async () => {
@@ -60,11 +70,27 @@ export function RecommendationsStep() {
     router.push("/app/journey");
   };
 
-  if (!isLoaded || !profileReady) {
+  if (!isLoaded || (!profileReady && !error)) {
     return (
       <div className="flex flex-col items-center gap-4 py-16">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
         <p className="text-on-surface-variant">Creating your profile...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-16">
+        <p className="text-sm text-red-500">{error}</p>
+        <Button
+          onClick={() => {
+            submitted.current = false;
+            submitProfile();
+          }}
+        >
+          Retry
+        </Button>
       </div>
     );
   }
