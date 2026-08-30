@@ -59,15 +59,27 @@ export function JournalCalendarView() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 overflow-hidden md:flex-row">
-      {/* Calendar */}
+      {/* Calendar — compact (1 week) on mobile, full month on desktop */}
       <div className="shrink-0 rounded-xl border border-outline-variant/10 bg-surface-container-low p-3 md:w-56">
-        <MiniCalendar
-          month={month}
-          setMonth={setMonth}
-          selected={selected}
-          daysWithEntries={new Set(byDay.keys())}
-          onPick={(d) => { setSelected(startOfDay(d)); setEditId(null); }}
-        />
+        <div className="md:hidden">
+          <MiniCalendar
+            month={month}
+            setMonth={setMonth}
+            selected={selected}
+            daysWithEntries={new Set(byDay.keys())}
+            onPick={(d) => { setSelected(startOfDay(d)); setEditId(null); }}
+            compact
+          />
+        </div>
+        <div className="hidden md:block">
+          <MiniCalendar
+            month={month}
+            setMonth={setMonth}
+            selected={selected}
+            daysWithEntries={new Set(byDay.keys())}
+            onPick={(d) => { setSelected(startOfDay(d)); setEditId(null); }}
+          />
+        </div>
       </div>
 
       {/* Day detail */}

@@ -57,7 +57,7 @@ export function RecommendationsStep() {
   const handleFinish = async () => {
     reset();
     await queryClient.resetQueries({ queryKey: yogaKeys.profile() });
-    router.push("/app/dashboard");
+    router.push("/app/journey");
   };
 
   if (!isLoaded || !profileReady) {

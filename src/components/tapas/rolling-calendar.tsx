@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import {
   format,
   isToday,
+  isSameDay,
   startOfMonth,
   endOfMonth,
   startOfWeek,
@@ -66,38 +67,14 @@ export function UnifiedCalendar({
 
   const today = new Date();
 
-  return (
-    <div className="rounded-xl border border-surface-container-high bg-surface-container-lowest p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7"
-          onClick={() => setCurrentMonth((m) => subMonths(m, 1))}
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <span className="font-serif text-on-surface">
-          {format(currentMonth, "MMMM yyyy")}
-        </span>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7"
-          onClick={() => setCurrentMonth((m) => addMonths(m, 1))}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      </div>
+  const selectedParsed = new Date(selectedDate + "T00:00:00");
+  const compactWeek = useMemo(() => {
+    return weeks.find((week) => week.some((d) => isSameDay(d, selectedParsed))) ?? weeks[0] ?? [];
+  }, [weeks, selectedParsed]);
 
-      <div className="grid grid-cols-7 text-center text-[11px] font-medium text-on-surface-variant">
-        {WEEKDAYS.map((d, i) => (
-          <span key={i}>{d}</span>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-7 gap-px">
-        {weeks.flat().map((day) => {
+  const renderDayGrid = (days: Date[]) => (
+    <div className="grid grid-cols-7 gap-px">
+      {days.map((day) => {
           const dateStr = format(day, "yyyy-MM-dd");
           const inMonth = isSameMonth(day, currentMonth);
           const isTodayDate = isToday(day);
@@ -144,7 +121,42 @@ export function UnifiedCalendar({
             </button>
           );
         })}
+    </div>
+  );
+
+  return (
+    <div className="rounded-xl border border-surface-container-high bg-surface-container-lowest p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          onClick={() => setCurrentMonth((m) => subMonths(m, 1))}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <span className="font-serif text-on-surface">
+          {format(currentMonth, "MMMM yyyy")}
+        </span>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          onClick={() => setCurrentMonth((m) => addMonths(m, 1))}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
+
+      <div className="grid grid-cols-7 text-center text-[11px] font-medium text-on-surface-variant">
+        {WEEKDAYS.map((d, i) => (
+          <span key={i}>{d}</span>
+        ))}
+      </div>
+
+      {/* Compact (1 week) on mobile, full month on desktop */}
+      <div className="md:hidden">{renderDayGrid(compactWeek)}</div>
+      <div className="hidden md:block">{renderDayGrid(weeks.flat())}</div>
 
       {habits.length > 0 && (
         <div className="flex flex-wrap gap-3 pt-2 border-t border-surface-container-high text-[11px] text-on-surface-variant">

@@ -23,24 +23,37 @@ export function MiniCalendar({
   selected,
   daysWithEntries,
   onPick,
+  compact = false,
 }: {
   month: Date;
   setMonth: (d: Date) => void;
   selected: Date;
   daysWithEntries: Set<string>;
   onPick: (d: Date) => void;
+  compact?: boolean;
 }) {
   const y = month.getFullYear();
   const m = month.getMonth();
   const first = new Date(y, m, 1);
   const offset = (first.getDay() + 6) % 7;
   const daysInMonth = new Date(y, m + 1, 0).getDate();
-  const cells: (Date | null)[] = [];
-  for (let i = 0; i < offset; i++) cells.push(null);
-  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(y, m, d));
+  const allCells: (Date | null)[] = [];
+  for (let i = 0; i < offset; i++) allCells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) allCells.push(new Date(y, m, d));
 
   const selKey = keyOfDate(selected);
   const todayKey = keyOfDate(startOfDay(new Date()));
+
+  // In compact mode, show only the week row containing the selected date
+  let cells = allCells;
+  if (compact) {
+    const selDay = selected.getDate();
+    const selIndex = allCells.findIndex((d) => d && d.getDate() === selDay);
+    if (selIndex >= 0) {
+      const rowStart = Math.floor(selIndex / 7) * 7;
+      cells = allCells.slice(rowStart, rowStart + 7);
+    }
+  }
 
   return (
     <div className="w-full">
