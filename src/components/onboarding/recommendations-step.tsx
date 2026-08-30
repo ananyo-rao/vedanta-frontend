@@ -30,39 +30,43 @@ export function RecommendationsStep() {
   const [profileReady, setProfileReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const submitProfile = () => {
-    if (!isLoaded || !isSignedIn) return;
-
-    setError(null);
-    const input: CreateYogaProfileInput = {
-      phone_number: personalDetails.phone_number || undefined,
-      date_of_birth: personalDetails.date_of_birth || undefined,
-      gender: personalDetails.gender || undefined,
-      location: personalDetails.location || undefined,
-      occupation: aboutYou.occupation || undefined,
-      work_feeling: aboutYou.work_feeling || undefined,
-      ideal_work: aboutYou.ideal_work || undefined,
-      platform_motivation: aboutYou.platform_motivation || undefined,
-      yoga_motivation: vedantaGoals.yoga_motivation || undefined,
-      has_practiced_before: vedantaGoals.has_practiced_before,
-      years_of_practice: vedantaGoals.years_of_practice,
-    };
-
-    createProfile
-      .mutateAsync(input)
-      .then(() => setProfileReady(true))
-      .catch((err) => {
-        console.error("Profile creation failed:", err);
-        setError("Something went wrong saving your profile. Please try again.");
-        setProfileReady(false);
-      });
-  };
+  const buildInput = (): CreateYogaProfileInput => ({
+    phone_number: personalDetails.phone_number || undefined,
+    date_of_birth: personalDetails.date_of_birth || undefined,
+    gender: personalDetails.gender || undefined,
+    location: personalDetails.location || undefined,
+    occupation: aboutYou.occupation || undefined,
+    work_feeling: aboutYou.work_feeling || undefined,
+    ideal_work: aboutYou.ideal_work || undefined,
+    platform_motivation: aboutYou.platform_motivation || undefined,
+    yoga_motivation: vedantaGoals.yoga_motivation || undefined,
+    has_practiced_before: vedantaGoals.has_practiced_before,
+    years_of_practice: vedantaGoals.years_of_practice,
+  });
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn || submitted.current) return;
     submitted.current = true;
-    submitProfile();
+
+    createProfile
+      .mutateAsync(buildInput())
+      .then(() => setProfileReady(true))
+      .catch((err) => {
+        console.error("Profile creation failed:", err);
+        setError("Something went wrong saving your profile. Please try again.");
+      });
   }, [isLoaded, isSignedIn]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleRetry = () => {
+    setError(null);
+    createProfile
+      .mutateAsync(buildInput())
+      .then(() => setProfileReady(true))
+      .catch((err) => {
+        console.error("Profile creation failed:", err);
+        setError("Something went wrong saving your profile. Please try again.");
+      });
+  };
 
   const handleFinish = async () => {
     reset();
@@ -83,12 +87,7 @@ export function RecommendationsStep() {
     return (
       <div className="flex flex-col items-center gap-4 py-16">
         <p className="text-sm text-red-500">{error}</p>
-        <Button
-          onClick={() => {
-            submitted.current = false;
-            submitProfile();
-          }}
-        >
+        <Button onClick={handleRetry}>
           Retry
         </Button>
       </div>
