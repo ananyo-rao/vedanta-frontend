@@ -14,7 +14,7 @@ export function BottomTabBar({ userRole }: BottomTabBarProps) {
   const pathname = usePathname();
 
   const filteredItems = bottomTabItems.filter(
-    (item) => !item.requiredRole || item.requiredRole === userRole
+    (item) => !item.roles || (!!userRole && item.roles.includes(userRole))
   );
 
   return (

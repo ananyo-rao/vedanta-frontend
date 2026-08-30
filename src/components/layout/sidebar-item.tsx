@@ -18,7 +18,17 @@ interface SidebarItemProps {
   label: string;
   href: string;
   badge?: string;
+  /**
+   * Live count rendered as an alert badge — unlike `badge`, which is a static
+   * label baked into the nav definition.
+   */
+  badgeCount?: number;
   external?: boolean;
+  /**
+   * Explicit active state. The parent resolves this when items nest, so that
+   * only the most specific match highlights. Falls back to prefix matching.
+   */
+  active?: boolean;
 }
 
 export function SidebarItem({
@@ -26,11 +36,15 @@ export function SidebarItem({
   label,
   href,
   badge,
+  badgeCount,
   external,
+  active: activeProp,
 }: SidebarItemProps) {
   const { collapsed } = useSidebar();
   const pathname = usePathname();
-  const active = !external && pathname.startsWith(href);
+  const active =
+    activeProp ?? (!external && pathname.startsWith(href));
+  const hasCount = typeof badgeCount === "number" && badgeCount > 0;
 
   const link = (
     <Link
@@ -43,11 +57,26 @@ export function SidebarItem({
           : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
       )}
     >
-      <Icon className="h-5 w-5 flex-shrink-0" />
+      <span className="relative flex-shrink-0">
+        <Icon className="h-5 w-5" />
+        {/* When collapsed there is no room for a number, but a teacher must
+            still be able to tell that someone is waiting on them. */}
+        {hasCount && collapsed && (
+          <span
+            aria-hidden="true"
+            className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-primary"
+          />
+        )}
+      </span>
       {!collapsed && (
         <>
           <span className="flex-1">{label}</span>
-          {badge && (
+          {hasCount && (
+            <Badge className="ml-auto bg-primary px-1.5 py-0 text-[10px] text-white">
+              {badgeCount}
+            </Badge>
+          )}
+          {!hasCount && badge && (
             <Badge
               variant="outline"
               className="ml-auto px-1.5 py-0 text-[10px]"

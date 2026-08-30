@@ -9,6 +9,12 @@ export interface ChatMessage {
   role: "user" | "assistant" | "guide";
   content: string;
   created_at?: string;
+  /**
+   * The guide who wrote this reply. Absent on the member's own messages, on AI
+   * answers, and on guide replies written before replies were attributed —
+   * render a plain "Guide" in that case.
+   */
+  author_name?: string;
 }
 
 // sendChat posts a message and returns the assistant's reply. The Dharma backend

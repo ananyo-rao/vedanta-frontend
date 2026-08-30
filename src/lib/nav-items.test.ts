@@ -7,8 +7,8 @@ import {
 
 describe("nav-items", () => {
   describe("sidebarNavItems", () => {
-    it("has BUILD items (Course Builder, Teachings, Developer Portal) then LEARN items", () => {
-      expect(sidebarNavItems).toHaveLength(7);
+    it("has BUILD items, then LEARN items, then TEACH", () => {
+      expect(sidebarNavItems).toHaveLength(8);
       expect(sidebarNavItems.map((i) => i.label)).toEqual([
         "Course Builder",
         "Teachings",
@@ -17,12 +17,13 @@ describe("nav-items", () => {
         "AI Chat",
         "Guide Chat",
         "Journal",
+        "Students",
       ]);
     });
 
     it("Developer Portal is an external admin-only link", () => {
       const dev = sidebarNavItems.find((i) => i.label === "Developer Portal");
-      expect(dev?.requiredRole).toBe("admin");
+      expect(dev?.roles).toEqual(["admin"]);
       expect(dev?.external).toBe(true);
       expect(dev?.href).toMatch(/^https?:\/\//);
     });
@@ -31,16 +32,29 @@ describe("nav-items", () => {
       const builder = sidebarNavItems.find(
         (i) => i.label === "Course Builder"
       );
-      expect(builder?.requiredRole).toBe("admin");
+      expect(builder?.roles).toEqual(["admin"]);
       expect(builder?.category).toBe("BUILD");
     });
 
-    it("LEARN items have no requiredRole", () => {
+    it("LEARN items are visible to everyone", () => {
       const learnItems = sidebarNavItems.filter(
         (i) => i.category === "LEARN"
       );
       learnItems.forEach((item) => {
-        expect(item.requiredRole).toBeUndefined();
+        expect(item.roles).toBeUndefined();
+      });
+    });
+
+    it("Students is visible to teachers and admins only", () => {
+      const students = sidebarNavItems.find((i) => i.label === "Students");
+      expect(students?.roles).toEqual(["teacher", "admin"]);
+      expect(students?.category).toBe("TEACH");
+      expect(students?.href).toBe("/app/guide/students");
+    });
+
+    it("never gates an item to students — that would hide it from staff", () => {
+      sidebarNavItems.forEach((item) => {
+        expect(item.roles?.includes("student")).toBeFalsy();
       });
     });
 
@@ -73,7 +87,7 @@ describe("nav-items", () => {
 
     it("Builder tab requires admin role", () => {
       const builder = bottomTabItems.find((t) => t.label === "Builder");
-      expect(builder?.requiredRole).toBe("admin");
+      expect(builder?.roles).toEqual(["admin"]);
     });
 
     it("all items have /app/ prefix in href", () => {

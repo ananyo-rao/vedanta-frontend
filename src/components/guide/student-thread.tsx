@@ -1,44 +1,59 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, Compass, Loader2 } from "lucide-react";
-import { useGuideHistory, useSendGuide } from "@/hooks/use-chat";
+import { Loader2, Send } from "lucide-react";
+import {
+  useStudentThread,
+  useReplyToStudent,
+  useNotifications,
+  useMarkNotificationsRead,
+} from "@/hooks/use-guide-students";
 
-export default function GuidePage() {
-  const { data: messages = [], isLoading } = useGuideHistory();
-  const send = useSendGuide();
+/**
+ * A student's questions and the guide's answers. Opening this view marks that
+ * student's notifications read — reading them is the act of reading them, so
+ * there is no separate "mark as read" control to remember to press.
+ */
+export function StudentThread({ clerkId }: { clerkId: string }) {
+  const { data: messages = [], isLoading } = useStudentThread(clerkId);
+  const reply = useReplyToStudent(clerkId);
+  const { data: notifications = [] } = useNotifications();
+  const markRead = useMarkNotificationsRead();
 
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const markedRef = useRef(false);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, send.isPending]);
+  }, [messages, reply.isPending]);
+
+  useEffect(() => {
+    if (markedRef.current) return;
+    const ids = notifications
+      .filter((n) => n.student_clerk_id === clerkId && !n.read_at)
+      .map((n) => n.id);
+    if (ids.length === 0) return;
+    markedRef.current = true;
+    markRead.mutate(ids);
+    // markRead is a stable mutation object; re-running on it would loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notifications, clerkId]);
 
   const handleSend = () => {
     const text = input.trim();
-    if (!text || send.isPending) return;
+    if (!text || reply.isPending) return;
     setError(null);
     setInput("");
-    send.mutate(text, {
+    reply.mutate(text, {
       onError: (e) =>
-        setError(e instanceof Error ? e.message : "Failed to send message"),
+        setError(e instanceof Error ? e.message : "Failed to send reply"),
     });
   };
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-8rem)] max-w-3xl flex-col">
-      <div className="mb-4 flex items-center gap-2">
-        <Compass className="h-5 w-5 text-primary" />
-        <div>
-          <h1 className="text-lg font-semibold text-on-surface">Guide Chat</h1>
-          <p className="text-sm text-on-surface-variant">
-            Message your guide. They&apos;ll reply here — no instant response.
-          </p>
-        </div>
-      </div>
-
+    <div className="flex h-full min-h-[24rem] flex-col">
       <div className="flex-1 space-y-3 overflow-y-auto rounded-xl border border-outline-variant/10 bg-surface-container-low p-4">
         {isLoading && (
           <div className="flex justify-center py-8">
@@ -46,27 +61,27 @@ export default function GuidePage() {
           </div>
         )}
         {!isLoading && messages.length === 0 && (
-          <div className="flex h-full flex-col items-center justify-center text-center text-on-surface-variant">
-            <Compass className="mb-2 h-8 w-8 opacity-40" />
-            <p className="text-sm">Send your guide a message to begin.</p>
-          </div>
+          <p className="py-8 text-center text-sm text-on-surface-variant">
+            This student has not asked you anything yet.
+          </p>
         )}
         {messages.map((m, i) => {
-          const mine = m.role === "user";
+          const fromGuide = m.role === "guide";
           return (
-            <div key={i} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+            <div
+              key={i}
+              className={`flex ${fromGuide ? "justify-end" : "justify-start"}`}
+            >
               <div
                 className={`max-w-[80%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm ${
-                  mine
+                  fromGuide
                     ? "rounded-br-sm bg-primary text-white"
                     : "rounded-bl-sm bg-surface-container-high text-on-surface"
                 }`}
               >
-                {!mine && (
-                  <span className="mb-0.5 block text-[10px] font-medium uppercase tracking-wide text-primary">
-                    {/* Replies are attributed to the guide who wrote them.
-                        Older replies carry no author and stay generic. */}
-                    {m.author_name || "Guide"}
+                {fromGuide && m.author_name && (
+                  <span className="mb-0.5 block text-[10px] font-medium uppercase tracking-wide text-white/80">
+                    {m.author_name}
                   </span>
                 )}
                 {m.content}
@@ -89,14 +104,14 @@ export default function GuidePage() {
               handleSend();
             }
           }}
-          placeholder="Message your guide…"
+          placeholder="Reply to your student…"
           rows={1}
           className="min-h-[44px] flex-1 resize-none rounded-lg border border-outline-variant/20 bg-surface-container-low px-3 py-2.5 text-sm text-on-surface outline-none focus:border-primary/50"
         />
         <button
           onClick={handleSend}
-          disabled={!input.trim() || send.isPending}
-          aria-label="Send message"
+          disabled={!input.trim() || reply.isPending}
+          aria-label="Send reply"
           className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary text-white transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           <Send className="h-5 w-5" />

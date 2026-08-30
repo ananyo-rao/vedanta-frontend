@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { PanelLeftClose, PanelLeft, Settings, LogOut } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/tooltip";
 import { SidebarItem } from "@/components/layout/sidebar-item";
 import { CategoryGroup } from "@/components/layout/category-group";
+import { StudentsNavItem } from "@/components/guide/students-nav-badge";
 import { useSidebar } from "@/hooks/use-sidebar";
 import { sidebarNavItems } from "@/lib/nav-items";
 import type { Role } from "@/lib/clerk";
@@ -35,6 +36,7 @@ export function Sidebar({
   const { collapsed, toggle } = useSidebar();
   const { signOut } = useClerk();
   const router = useRouter();
+  const pathname = usePathname();
 
   const initials = (userName || "")
     .split(" ")
@@ -51,8 +53,19 @@ export function Sidebar({
 
   // Filter nav items by role, then group by category
   const filteredItems = sidebarNavItems.filter(
-    (item) => !item.requiredRole || item.requiredRole === userRole
+    (item) => !item.roles || (!!userRole && item.roles.includes(userRole))
   );
+
+  // Pick a single active item: nested routes such as /app/guide and
+  // /app/guide/students both prefix-match the current path, and highlighting
+  // both reads as a broken sidebar. Longest match wins.
+  const activeHref = filteredItems
+    .filter(
+      (item) =>
+        !item.external &&
+        (pathname === item.href || pathname.startsWith(item.href + "/"))
+    )
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
   const categories = filteredItems.reduce(
     (acc, item) => {
       if (!acc[item.category]) acc[item.category] = [];
@@ -99,13 +112,13 @@ export function Sidebar({
           collapsed ? (
             <div key={category} className="space-y-1 pt-4">
               {items.map((item) => (
-                <SidebarItem key={item.href} {...item} />
+                <NavRow key={item.href} item={item} activeHref={activeHref} />
               ))}
             </div>
           ) : (
             <CategoryGroup key={category} label={category}>
               {items.map((item) => (
-                <SidebarItem key={item.href} {...item} />
+                <NavRow key={item.href} item={item} activeHref={activeHref} />
               ))}
             </CategoryGroup>
           )
@@ -193,4 +206,31 @@ export function Sidebar({
       </div>
     </aside>
   );
+}
+
+/**
+ * Renders one nav row. Students gets a variant that carries a live unread count;
+ * everything else is the plain item. Choosing here rather than inside
+ * SidebarItem keeps the notification polling out of every member's sidebar.
+ */
+function NavRow({
+  item,
+  activeHref,
+}: {
+  item: (typeof sidebarNavItems)[number];
+  activeHref?: string;
+}) {
+  const props = {
+    icon: item.icon,
+    label: item.label,
+    href: item.href,
+    badge: item.badge,
+    external: item.external,
+    active: item.href === activeHref,
+  };
+
+  if (item.href === "/app/guide/students") {
+    return <StudentsNavItem {...props} />;
+  }
+  return <SidebarItem {...props} />;
 }

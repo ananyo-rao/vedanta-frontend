@@ -26,7 +26,7 @@ export function InviteUserDialog({
 }: InviteUserDialogProps) {
   const { getToken } = useAuth();
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("member");
+  const [role, setRole] = useState("student");
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,7 +51,7 @@ export function InviteUserDialog({
 
       toast.success(`Invitation sent to ${email}`);
       setEmail("");
-      setRole("member");
+      setRole("student");
       onOpenChange(false);
       onSuccess();
     } catch (err) {
@@ -98,7 +98,8 @@ export function InviteUserDialog({
               onChange={(e) => setRole(e.target.value)}
               className="w-full rounded-lg border border-outline-variant/20 bg-surface-container-low px-4 py-2.5 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             >
-              <option value="member">Member</option>
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
               <option value="admin">Admin</option>
             </select>
           </div>

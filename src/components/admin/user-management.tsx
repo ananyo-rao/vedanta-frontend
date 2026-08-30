@@ -10,6 +10,7 @@ import {
   UserX,
   UserCheck,
   History,
+  Compass,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -23,8 +24,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { InviteUserDialog } from "@/components/admin/invite-user-dialog";
+import { formatRelativeTime } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { LoginHistorySheet } from "@/components/admin/login-history-sheet";
+import { AssignGuideSheet } from "@/components/admin/assign-guide-sheet";
+import { useAssignmentRoster } from "@/hooks/use-guide-assignments";
 
 interface User {
   id: string;
@@ -70,6 +74,18 @@ export function UserManagement() {
     description: string;
   } | null>(null);
   const [historyUser, setHistoryUser] = useState<User | null>(null);
+  const [assignUser, setAssignUser] = useState<User | null>(null);
+
+  // The student→guide edge lives in the Dharma backend, so it is fetched
+  // separately and joined on clerk_id. Roles stay single-sourced in the courses
+  // API; Dharma never learns who is a teacher.
+  const { data: assignments = [] } = useAssignmentRoster("all");
+  const guideByClerkId = new Map(
+    assignments.map((a) => [
+      a.clerk_id,
+      { id: a.guide_clerk_id ?? "", name: a.guide_name ?? "" },
+    ])
+  );
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -108,8 +124,7 @@ export function UserManagement() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  const handleRoleChange = (user: User) => {
-    const newRole = user.role === "admin" ? "member" : "admin";
+  const handleRoleChange = (user: User, newRole: string) => {
     setConfirmAction({
       user,
       type: "role",
@@ -176,20 +191,6 @@ export function UserManagement() {
     }
   };
 
-  const formatRelativeTime = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    if (diffMins < 1) return "just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays < 30) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
-  };
-
   return (
     <div>
       {/* Header */}
@@ -229,7 +230,8 @@ export function UserManagement() {
         >
           <option value="">All Roles</option>
           <option value="admin">Admin</option>
-          <option value="member">Member</option>
+          <option value="teacher">Teacher</option>
+          <option value="student">Student</option>
         </select>
       </div>
 
@@ -257,6 +259,9 @@ export function UserManagement() {
                 </th>
                 <th className="px-4 py-3 text-left font-medium text-on-surface-variant">
                   Role
+                </th>
+                <th className="hidden px-4 py-3 text-left font-medium text-on-surface-variant lg:table-cell">
+                  Guide
                 </th>
                 <th className="hidden px-4 py-3 text-left font-medium text-on-surface-variant sm:table-cell">
                   Status
@@ -306,12 +311,29 @@ export function UserManagement() {
                     <td className="px-4 py-3">
                       <Badge
                         variant={
-                          user.role === "admin" ? "default" : "outline"
+                          user.role === "admin"
+                            ? "default"
+                            : user.role === "teacher"
+                              ? "secondary"
+                              : "outline"
                         }
                         className="text-[10px]"
                       >
                         {user.role}
                       </Badge>
+                    </td>
+                    <td className="hidden px-4 py-3 lg:table-cell">
+                      {user.role !== "student" ? (
+                        <span className="text-on-surface-variant/50">—</span>
+                      ) : guideByClerkId.get(user.clerk_id)?.id ? (
+                        <span className="text-on-surface">
+                          {guideByClerkId.get(user.clerk_id)?.name || "Assigned"}
+                        </span>
+                      ) : (
+                        <span className="text-on-surface-variant/60">
+                          Unassigned
+                        </span>
+                      )}
                     </td>
                     <td className="hidden px-4 py-3 sm:table-cell">
                       <Badge
@@ -341,14 +363,27 @@ export function UserManagement() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleRoleChange(user)}
-                          >
-                            <Shield className="mr-2 h-4 w-4" />
-                            {user.role === "admin"
-                              ? "Change to Member"
-                              : "Change to Admin"}
-                          </DropdownMenuItem>
+                          {(["admin", "teacher", "student"] as const)
+                            .filter((r) => r !== user.role)
+                            .map((r) => (
+                              <DropdownMenuItem
+                                key={r}
+                                onClick={() => handleRoleChange(user, r)}
+                              >
+                                <Shield className="mr-2 h-4 w-4" />
+                                Change to {r.charAt(0).toUpperCase() + r.slice(1)}
+                              </DropdownMenuItem>
+                            ))}
+                          {user.role === "student" && (
+                            <DropdownMenuItem
+                              onClick={() => setAssignUser(user)}
+                            >
+                              <Compass className="mr-2 h-4 w-4" />
+                              {guideByClerkId.get(user.clerk_id)?.id
+                                ? "Change guide"
+                                : "Assign guide"}
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem
                             onClick={() => handleStatusChange(user)}
                           >
@@ -436,6 +471,19 @@ export function UserManagement() {
           user={historyUser}
         />
       )}
+
+      <AssignGuideSheet
+        student={assignUser}
+        currentGuideId={
+          assignUser ? guideByClerkId.get(assignUser.clerk_id)?.id : undefined
+        }
+        currentGuideName={
+          assignUser ? guideByClerkId.get(assignUser.clerk_id)?.name : undefined
+        }
+        onOpenChange={(open) => {
+          if (!open) setAssignUser(null);
+        }}
+      />
     </div>
   );
 }

@@ -21,7 +21,7 @@ const defaultProps = {
   userName: "Arjuna Pandava",
   userEmail: "arjuna@vedanta.academy",
   userImageUrl: "/images/arjuna.jpg",
-  userRole: "member" as const,
+  userRole: "student" as const,
 };
 
 const adminProps = { ...defaultProps, userRole: "admin" as const };
