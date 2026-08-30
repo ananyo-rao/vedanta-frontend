@@ -52,7 +52,7 @@ export function RecommendationsStep() {
     const email = user?.emailAddresses?.[0]?.emailAddress || "";
     const name = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
     if (email) {
-      await syncUser(token, email, name);
+      await syncUser(token, email, name).catch(() => {});
     }
     await createProfile.mutateAsync(buildInput());
   };
