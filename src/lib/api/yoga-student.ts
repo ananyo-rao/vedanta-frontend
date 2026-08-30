@@ -14,6 +14,17 @@ import type {
 } from "@/types/yoga";
 import { fetchWithAuth, API_URL } from "@/lib/api/fetch";
 
+export async function syncUser(
+  token: string,
+  email: string,
+  name: string
+): Promise<{ data: { id: string } }> {
+  return fetchWithAuth(`${API_URL}/api/users/me`, token, {
+    method: "POST",
+    body: JSON.stringify({ email, name }),
+  });
+}
+
 export async function getYogaProfile(
   token: string
 ): Promise<{ data: YogaProfile }> {
