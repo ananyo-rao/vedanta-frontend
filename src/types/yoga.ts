@@ -40,7 +40,7 @@ export interface CreateYogaProfileInput {
   yoga_motivation?: string;
   has_practiced_before: boolean;
   years_of_practice: number;
-  condition_slugs: string[];
+  condition_slugs?: string[];
 }
 
 export interface UpdateYogaProfileInput {
