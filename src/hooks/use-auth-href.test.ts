@@ -13,11 +13,11 @@ describe("useAuthHref", () => {
     mockUseAuth.mockReset();
   });
 
-  it("returns /app/dashboard when signed in", () => {
+  it("returns /app/journey when signed in", () => {
     mockUseAuth.mockReturnValue({ isSignedIn: true });
 
     const { result } = renderHook(() => useAuthHref());
-    expect(result.current).toBe("/app/dashboard");
+    expect(result.current).toBe("/app/journey");
   });
 
   it("returns /sign-in when not signed in", () => {
