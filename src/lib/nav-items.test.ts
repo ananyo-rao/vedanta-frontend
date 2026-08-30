@@ -59,11 +59,12 @@ describe("nav-items", () => {
   });
 
   describe("bottomTabItems", () => {
-    it("has 4 tabs: Sessions, Journey, Builder, Profile", () => {
-      expect(bottomTabItems).toHaveLength(4);
+    it("has 5 tabs: Sessions, Journey, Tapas, Builder, Profile", () => {
+      expect(bottomTabItems).toHaveLength(5);
       expect(bottomTabItems.map((t) => t.label)).toEqual([
         "Sessions",
         "Journey",
+        "Tapas",
         "Builder",
         "Profile",
       ]);

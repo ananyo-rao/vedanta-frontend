@@ -63,6 +63,7 @@ export const sidebarNavItems: NavItem[] = [
 export const bottomTabItems: BottomTabItem[] = [
   { icon: Video, label: "Sessions", href: "/app/dashboard" },
   { icon: NotebookPen, label: "Journey", href: "/app/journey" },
+  { icon: Flame, label: "Tapas", href: "/app/tapas" },
   { icon: Hammer, label: "Builder", href: "/app/admin/course-builder", requiredRole: "admin" },
   { icon: User, label: "Profile", href: "/app/profile" },
 ];

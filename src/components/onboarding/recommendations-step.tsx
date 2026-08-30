@@ -3,9 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ElementBadge } from "@/components/yoga-courses/element-badge";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+import { yogaKeys } from "@/lib/query-keys";
 import {
   useCreateYogaProfile,
   useRecommendedCourses,
@@ -18,9 +20,9 @@ export function RecommendationsStep() {
   const reset = useOnboardingStore((s) => s.reset);
   const personalDetails = useOnboardingStore((s) => s.personalDetails);
   const aboutYou = useOnboardingStore((s) => s.aboutYou);
-  const healthConditions = useOnboardingStore((s) => s.healthConditions);
   const vedantaGoals = useOnboardingStore((s) => s.vedantaGoals);
 
+  const queryClient = useQueryClient();
   const createProfile = useCreateYogaProfile();
   const { data: courses, isLoading: coursesLoading } = useRecommendedCourses();
 
@@ -44,7 +46,6 @@ export function RecommendationsStep() {
       yoga_motivation: vedantaGoals.yoga_motivation || undefined,
       has_practiced_before: vedantaGoals.has_practiced_before,
       years_of_practice: vedantaGoals.years_of_practice,
-      condition_slugs: healthConditions,
     };
 
     createProfile
@@ -53,8 +54,9 @@ export function RecommendationsStep() {
       .catch(() => setProfileReady(true)); // profile may already exist — treat as success
   }, [isLoaded, isSignedIn]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     reset();
+    await queryClient.resetQueries({ queryKey: yogaKeys.profile() });
     router.push("/app/dashboard");
   };
 

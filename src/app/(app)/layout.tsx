@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { BottomTabBar } from "@/components/layout/bottom-tab-bar";
 import { QueryProvider } from "@/lib/query-provider";
 import { getUserRole } from "@/lib/clerk";
+import { OnboardingGuard } from "@/components/layout/onboarding-guard";
 
 export default async function AppLayout({
   children,
@@ -40,7 +41,7 @@ export default async function AppLayout({
           className="flex-1 overflow-y-auto p-6 pb-24 sm:pb-6 lg:p-8"
           id="main-content"
         >
-          {children}
+          <OnboardingGuard>{children}</OnboardingGuard>
         </main>
 
         {/* Mobile bottom tab bar (hidden on sm+) */}

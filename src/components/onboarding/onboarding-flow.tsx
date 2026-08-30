@@ -6,11 +6,10 @@ import { ProgressDots } from "./progress-dots";
 import { WelcomeStep } from "./welcome-step";
 import { PersonalDetailsStep } from "./personal-details-step";
 import { AboutYouStep } from "./about-you-step";
-import { HealthConditionsStep } from "./health-conditions-step";
 import { VedantaGoalsStep } from "./yoga-goals-step";
 import { RecommendationsStep } from "./recommendations-step";
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 5;
 
 export function OnboardingFlow() {
   const step = useOnboardingStore((s) => s.step);
@@ -53,9 +52,8 @@ export function OnboardingFlow() {
         {step === 0 && <WelcomeStep />}
         {step === 1 && <PersonalDetailsStep />}
         {step === 2 && <AboutYouStep />}
-        {step === 3 && <HealthConditionsStep />}
-        {step === 4 && <VedantaGoalsStep />}
-        {step === 5 && <RecommendationsStep />}
+        {step === 3 && <VedantaGoalsStep />}
+        {step === 4 && <RecommendationsStep />}
       </div>
     </div>
   );
