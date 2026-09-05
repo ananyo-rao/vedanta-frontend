@@ -8,15 +8,17 @@ import {
 describe("nav-items", () => {
   describe("sidebarNavItems", () => {
     it("has BUILD items, then LEARN items, then TEACH", () => {
-      expect(sidebarNavItems).toHaveLength(8);
+      expect(sidebarNavItems).toHaveLength(10);
       expect(sidebarNavItems.map((i) => i.label)).toEqual([
         "Course Builder",
         "Teachings",
+        "Live Sessions",
         "Developer Portal",
         "Courses",
         "AI Chat",
         "Guide Chat",
         "Journal",
+        "Live Sessions",
         "Students",
       ]);
     });
@@ -58,11 +60,33 @@ describe("nav-items", () => {
       });
     });
 
-    it("has AI Chat, Guide Chat, and Journal in LEARN", () => {
+    it("has AI Chat, Guide Chat, Journal, and Live Sessions in LEARN", () => {
       const learn = sidebarNavItems
         .filter((i) => i.category === "LEARN")
         .map((i) => i.label);
-      expect(learn).toEqual(["Courses", "AI Chat", "Guide Chat", "Journal"]);
+      expect(learn).toEqual([
+        "Courses",
+        "AI Chat",
+        "Guide Chat",
+        "Journal",
+        "Live Sessions",
+      ]);
+    });
+
+    it("Live Sessions appears twice: an admin console and a member view", () => {
+      const items = sidebarNavItems.filter((i) => i.label === "Live Sessions");
+      expect(items).toHaveLength(2);
+
+      // The console runs classes, so it is admin-only.
+      const admin = items.find((i) => i.category === "BUILD");
+      expect(admin?.href).toBe("/app/admin/sessions");
+      expect(admin?.roles).toEqual(["admin"]);
+
+      // The member view is open to everyone; the list is empty unless they
+      // have actually been invited to something.
+      const member = items.find((i) => i.category === "LEARN");
+      expect(member?.href).toBe("/app/sessions");
+      expect(member?.roles).toBeUndefined();
     });
 
     it("internal items have /app/ prefix in href", () => {
